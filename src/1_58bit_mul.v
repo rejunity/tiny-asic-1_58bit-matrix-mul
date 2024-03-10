@@ -78,7 +78,6 @@ module systolic_array (
     wire signed [16:0] accumulators_next [3:0];
     reg  signed [16:0] out_queue         [3:0];
     reg          [1:0] out_queue_index;
-    // wire [16:0] top_in_negative = 17'b0 - top_in;
 
     integer n;
     // // clocked accumulators[]
@@ -105,7 +104,6 @@ module systolic_array (
     //     else
     //         out_queue_index <= out_queue_index + 1;
 
-    // clocked accumulators[]
     always @(posedge clk)
         for (n = 0; n < 4; n = n + 1) begin
             if (reset | reset_accumulators)
@@ -124,7 +122,6 @@ module systolic_array (
 
     genvar i, j;
     generate
-    // integer i, j;
     for (j = 0; j < 1; j = j + 1)
         for (i = 0; i < 4; i = i + 1) begin : mac
             wire [16:0] value_curr  = accumulators     [i*1+j];
