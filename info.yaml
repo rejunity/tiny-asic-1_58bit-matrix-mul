@@ -11,11 +11,11 @@ project:
   tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_example"
+  top_module:  "tt_um_rejunity_1_58bit"
   
   # List your project's source files here. Source files must be in ./src and you must list each source file separately, one per line:
   source_files:        
-    - "project.v"
+    - "1_58bit_mul.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
