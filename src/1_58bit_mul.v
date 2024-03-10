@@ -89,7 +89,8 @@ module systolic_array (
     reg  signed [16:0] accumulators      [W*H-1:0];
     wire signed [16:0] accumulators_next [W*H-1:0];
     reg  signed [16:0] out_queue         [W*H-1:0];
-    reg          [1:0] out_queue_index;
+    // reg          [1:0] out_queue_index;
+    reg          [3:0] out_queue_index;
 
     integer n;
     always @(posedge clk) begin
