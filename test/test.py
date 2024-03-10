@@ -30,6 +30,23 @@ assert pack_weights([ 1, 0, -1, 0]) == 0b01_00_11_00
 assert pack_weights([-1, 1, -1, 1]) == 0b11_01_11_01
 assert pack_weights([-1, 1, -1, 1]*4) == 0b11011101_11011101_11011101_11011101
 
+def random_matrix(lo, hi, dims):
+    if isinstance(dims, (int)):
+        return random_matrix(lo, hi, [dims])
+    if len(dims) == 1:
+        return [random.randint(lo, hi) for _ in range(dims[0])]
+    return [[random.randint(lo, hi) for _ in range(dims[1])] for _ in range(dims[0])]
+assert(random_matrix(0, 0, 4) == [0, 0, 0, 0])
+assert(random_matrix(0, 0, (2, 2)) == [[0, 0], [0, 0]])
+
+def flatten(matrix):
+    return [x for row in matrix for x in row]
+assert(flatten([[1, 2], [3, 4]]) == [1, 2, 3, 4])
+
+def transpose(matrix):
+    return [list(x) for x in zip(*matrix)]
+assert(transpose([[1, 2], [3, 4]]) == [[1, 3], [2, 4]])
+
 def mul(vec, scale):
     return [x * scale for x in vec]
     
@@ -155,52 +172,52 @@ async def test_3(dut):
         await ClockCycles(dut.clk, 1)
         assert s8_to_i32(dut.uo_out.value) == dot(w, inputs) >> 8
 
-# @cocotb.test()
-# async def test_4(dut):
-#     random.seed(3)
-#     N = 128
-#     weights = np.random.randint(-1, 2, (N, 4))
-#     packed_weights = pack_weights(weights.flatten())
-#     # inputs = [127] * N
-#     inputs = range(N)
+@cocotb.test()
+async def test_4(dut):
+    random.seed(3)
+    N = 128
+    weights = random_matrix(-1, 1, (N, 4))
+    packed_weights = pack_weights(flatten(weights))
+    # inputs = [127] * N
+    inputs = range(N)
 
-#     print (weights)
-#     print (inputs)
+    print (weights)
+    print (inputs)
 
-#     dut._log.info("Start")
-#     clock = Clock(dut.clk, 10, units="us")
-#     cocotb.start_soon(clock.start())
+    dut._log.info("Start")
+    clock = Clock(dut.clk, 10, units="us")
+    cocotb.start_soon(clock.start())
 
-#     # Reset
-#     dut._log.info("Reset")
-#     dut.rst_n.value = 0
-#     await ClockCycles(dut.clk, 4)
-#     dut.rst_n.value = 1
+    # Reset
+    dut._log.info("Reset")
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 4)
+    dut.rst_n.value = 1
 
-#     # Compute
-#     dut._log.info("Compute")
-#     for x in reversed(inputs):
-#         dut.uio_in.value = x
-#         dut.ui_in.value  = packed_weights & 255
-#         packed_weights >>= 8
-#         await ClockCycles(dut.clk, 1)
+    # Compute
+    dut._log.info("Compute")
+    for x in reversed(inputs):
+        dut.uio_in.value = x
+        dut.ui_in.value  = packed_weights & 255
+        packed_weights >>= 8
+        await ClockCycles(dut.clk, 1)
     
-#     # Move accumulators to output queue
-#     dut.ena.value = 0
-#     dut.ui_in.value = 0
-#     dut.uio_in.value = 0
-#     await ClockCycles(dut.clk, 1)
-#     dut.ena.value = 1
+    # Move accumulators to output queue
+    dut.ena.value = 0
+    dut.ui_in.value = 0
+    dut.uio_in.value = 0
+    await ClockCycles(dut.clk, 1)
+    dut.ena.value = 1
 
-#     # Validate
-#     dut._log.info("Validate")
+    # Validate
+    dut._log.info("Validate")
 
-#     for w in weights.T:
-#         print (dot(w, inputs), dot(w, inputs) >> 8, s8_to_i32(dot(w, inputs) & 255))
+    for w in transpose(weights):
+        print (dot(w, inputs), dot(w, inputs) >> 8, s8_to_i32(dot(w, inputs) & 255))
 
-#     for w in weights.T:
-#         await ClockCycles(dut.clk, 1)
-#         print (dut.uo_out.value, int(dut.uo_out.value), s8_to_i32(dut.uo_out.value))
-#         # print (w.shape, np.array(inputs).shape, sum(w * inputs), sum(w * inputs) >> 8)
-#         # assert s8_to_i32(dut.uo_out.value) == (w @ np.array(inputs)) >> 8
-#         assert s8_to_i32(dut.uo_out.value) == dot(w, inputs) >> 8
+    for w in transpose(weights):
+        await ClockCycles(dut.clk, 1)
+        print (dut.uo_out.value, int(dut.uo_out.value), s8_to_i32(dut.uo_out.value))
+        # print (w.shape, np.array(inputs).shape, sum(w * inputs), sum(w * inputs) >> 8)
+        # assert s8_to_i32(dut.uo_out.value) == (w @ np.array(inputs)) >> 8
+        assert s8_to_i32(dut.uo_out.value) == dot(w, inputs) >> 8
