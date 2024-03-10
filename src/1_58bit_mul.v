@@ -81,29 +81,46 @@ module systolic_array (
     // wire [16:0] top_in_negative = 17'b0 - top_in;
 
     integer n;
+    // // clocked accumulators[]
+    // always @(posedge clk)
+    //     for (n = 0; n < 4; n = n + 1)
+    //         if (reset | reset_accumulators)
+    //             accumulators[n] <= 0;
+    //         else
+    //             accumulators[n] <= accumulators_next[n];
+
+    // // clocked out_queue[]
+    // always @(posedge clk)
+    //     for (n = 0; n < 4; n = n + 1)
+    //         // if (reset)
+    //         //     out_queue[n] <= 0;
+    //         // else
+    //             if (copy_accumulator_values_to_out_queue)
+    //                 out_queue[n]    <= accumulators[n]; //accumulators_next[n];
+            
+    // // clocked out_queue_index[]
+    // always @(posedge clk)
+    //     if (reset | restart_out_queue)
+    //         out_queue_index <= 0;
+    //     else
+    //         out_queue_index <= out_queue_index + 1;
+
     // clocked accumulators[]
     always @(posedge clk)
-        for (n = 0; n < 4; n = n + 1)
+        for (n = 0; n < 4; n = n + 1) begin
             if (reset | reset_accumulators)
                 accumulators[n] <= 0;
             else
                 accumulators[n] <= accumulators_next[n];
 
-    // clocked out_queue[]
-    always @(posedge clk)
-        for (n = 0; n < 4; n = n + 1)
-            // if (reset)
-            //     out_queue[n] <= 0;
-            // else
-                if (copy_accumulator_values_to_out_queue)
-                    out_queue[n]    <= accumulators[n]; //accumulators_next[n];
-            
-    // clocked out_queue_index[]
-    always @(posedge clk)
-        if (reset | restart_out_queue)
-            out_queue_index <= 0;
-        else
-            out_queue_index <= out_queue_index + 1;
+            if (reset | restart_out_queue)
+                out_queue_index <= 0;
+            else
+                out_queue_index <= out_queue_index + 1;
+
+            if (copy_accumulator_values_to_out_queue)
+                out_queue[n]    <= accumulators_next[n];
+        end
 
     genvar i, j;
     generate
