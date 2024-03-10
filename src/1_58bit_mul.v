@@ -78,6 +78,13 @@ module systolic_array (
     localparam W = 1 * SLICES;
     localparam H = 4 * SLICES;
 
+    reg [H  -1:0] arg_left_zero;
+    reg [H  -1:0] arg_left_sign;
+    reg [W*8-1:0] arg_top;
+    // wire [H  -1:0] arg_left_zero = in_left_zero;
+    // wire [H  -1:0] arg_left_sign = in_left_sign;
+    // wire [W*8-1:0] arg_top = in_top;
+
     reg                slice_counter;
     reg  signed [16:0] accumulators      [W*H-1:0];
     wire signed [16:0] accumulators_next [W*H-1:0];
@@ -88,13 +95,27 @@ module systolic_array (
     always @(posedge clk) begin
         if (reset)
             slice_counter <= 0;
-        else
+        else if (SLICES > 1)
             slice_counter <= slice_counter + 1;
 
         if (reset | restart_out_queue)
             out_queue_index <= 0;
         else
             out_queue_index <= out_queue_index + 1;
+
+        if (reset) begin
+            arg_left_zero <= 0;
+            arg_left_sign <= 0;
+            arg_top <= 0;
+        end else begin
+            // arg_left_zero <= in_left_zero;
+            // arg_left_sign <= in_left_sign;
+            // arg_top <= in_top;
+
+            arg_left_zero[slice_counter*4 +: 4] <= in_left_zero;
+            arg_left_sign[slice_counter*4 +: 4] <= in_left_sign;
+            arg_top[slice_counter*8 +: 8] <= in_top;
+        end
 
         for (n = 0; n < W*H; n = n + 1) begin
             if (reset | reset_accumulators)
@@ -114,12 +135,13 @@ module systolic_array (
             wire [16:0] value_curr  = accumulators     [i*W+j];
             wire [16:0] value_next  = accumulators_next[i*W+j];
             wire [16:0] value_queue = out_queue        [i*W+j];
-            assign pass_through = (j != slice_counter) | in_left_zero[i];
+            wire pass_through = (j != slice_counter) | arg_left_zero[i];
+            wire signed [7:0] addend = $signed(arg_top[j*8 +: 8]);
             assign accumulators_next[i*W+j] =
-                 reset           ? 0 :
-                 pass_through    ? accumulators[i*1+j] + 0 :
-                (in_left_sign[i] ? accumulators[i*1+j] - $signed(in_top) :
-                                   accumulators[i*1+j] + $signed(in_top));
+                 reset            ? 0 :
+                 pass_through     ? accumulators[i*1+j] + 0 :
+                (arg_left_sign[i] ? accumulators[i*1+j] - addend :
+                                    accumulators[i*1+j] + addend);
         end
     endgenerate
 
