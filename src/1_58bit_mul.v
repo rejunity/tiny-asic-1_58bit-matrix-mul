@@ -74,62 +74,50 @@ module systolic_array (
 
     output wire [7:0] out
 );
-    reg  signed [16:0] accumulators      [3:0];
-    wire signed [16:0] accumulators_next [3:0];
-    reg  signed [16:0] out_queue         [3:0];
+    localparam SLICES = 2;
+    localparam W = 1 * SLICES;
+    localparam H = 4 * SLICES;
+
+    reg                slice_counter;
+    reg  signed [16:0] accumulators      [W*H-1:0];
+    wire signed [16:0] accumulators_next [W*H-1:0];
+    reg  signed [16:0] out_queue         [W*H-1:0];
     reg          [1:0] out_queue_index;
 
     integer n;
-    // // clocked accumulators[]
-    // always @(posedge clk)
-    //     for (n = 0; n < 4; n = n + 1)
-    //         if (reset | reset_accumulators)
-    //             accumulators[n] <= 0;
-    //         else
-    //             accumulators[n] <= accumulators_next[n];
+    always @(posedge clk) begin
+        if (reset)
+            slice_counter <= 0;
+        else
+            slice_counter <= slice_counter + 1;
 
-    // // clocked out_queue[]
-    // always @(posedge clk)
-    //     for (n = 0; n < 4; n = n + 1)
-    //         // if (reset)
-    //         //     out_queue[n] <= 0;
-    //         // else
-    //             if (copy_accumulator_values_to_out_queue)
-    //                 out_queue[n]    <= accumulators[n]; //accumulators_next[n];
-            
-    // // clocked out_queue_index[]
-    // always @(posedge clk)
-    //     if (reset | restart_out_queue)
-    //         out_queue_index <= 0;
-    //     else
-    //         out_queue_index <= out_queue_index + 1;
+        if (reset | restart_out_queue)
+            out_queue_index <= 0;
+        else
+            out_queue_index <= out_queue_index + 1;
 
-    always @(posedge clk)
-        for (n = 0; n < 4; n = n + 1) begin
+        for (n = 0; n < W*H; n = n + 1) begin
             if (reset | reset_accumulators)
                 accumulators[n] <= 0;
             else
                 accumulators[n] <= accumulators_next[n];
 
-            if (reset | restart_out_queue)
-                out_queue_index <= 0;
-            else
-                out_queue_index <= out_queue_index + 1;
-
             if (copy_accumulator_values_to_out_queue)
                 out_queue[n]    <= accumulators_next[n];
         end
+    end
 
     genvar i, j;
     generate
-    for (j = 0; j < 1; j = j + 1)
-        for (i = 0; i < 4; i = i + 1) begin : mac
-            wire [16:0] value_curr  = accumulators     [i*1+j];
-            wire [16:0] value_next  = accumulators_next[i*1+j];
-            wire [16:0] value_queue = out_queue        [i*1+j];
-            assign accumulators_next[i*1+j] =
-                 reset ? 0 :
-                 in_left_zero[i] ? accumulators[i*1+j] + 0 :
+    for (j = 0; j < W; j = j + 1)
+        for (i = 0; i < H; i = i + 1) begin : mac
+            wire [16:0] value_curr  = accumulators     [i*W+j];
+            wire [16:0] value_next  = accumulators_next[i*W+j];
+            wire [16:0] value_queue = out_queue        [i*W+j];
+            assign pass_through = (j != slice_counter) | in_left_zero[i];
+            assign accumulators_next[i*W+j] =
+                 reset           ? 0 :
+                 pass_through    ? accumulators[i*1+j] + 0 :
                 (in_left_sign[i] ? accumulators[i*1+j] - $signed(in_top) :
                                    accumulators[i*1+j] + $signed(in_top));
         end
