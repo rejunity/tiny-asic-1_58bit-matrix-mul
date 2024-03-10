@@ -80,7 +80,7 @@ module systolic_array (
     reg          [1:0] out_queue_index;
     // wire [16:0] top_in_negative = 17'b0 - top_in;
 
-    reg [1]:0] n; // mac iterator
+    integer n;
     // clocked accumulators[]
     always @(posedge clk)
         for (n = 0; n < 4; n = n + 1)
