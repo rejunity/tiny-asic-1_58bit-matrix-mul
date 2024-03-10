@@ -6,9 +6,6 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 
-# def int_to_byte(i):
-#     return i if i >= 0 else 0x100 + i
-
 def s8_to_i32(s8):
     s8 = int(s8)
     return s8 if s8 < 0x80 else s8 - 0x100
