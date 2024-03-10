@@ -80,7 +80,7 @@ module systolic_array (
     reg          [1:0] out_queue_index;
     // wire [16:0] top_in_negative = 17'b0 - top_in;
 
-    reg [7:0] n; // mac iterator
+    reg [1]:0] n; // mac iterator
     // clocked accumulators[]
     always @(posedge clk)
         for (n = 0; n < 4; n = n + 1)
@@ -96,7 +96,7 @@ module systolic_array (
             //     out_queue[n] <= 0;
             // else
                 if (copy_accumulator_values_to_out_queue)
-                    out_queue[n]    <= accumulators_next[n];
+                    out_queue[n]    <= accumulators[n]; //accumulators_next[n];
             
     // clocked out_queue_index[]
     always @(posedge clk)
