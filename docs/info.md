@@ -8,13 +8,11 @@ You can also include images in this folder and reference them in the markdown. E
 -->
 
 ## How it works
-
-Explain how your project works
+Matrix multiplication is implemented using a systolic array architecture.
 
 ## How to test
-
-Explain how to use your project
+Every cycle feed packed weight data to Input pins and input data to Bidirectional pins.
+Strobe Enable pin to start receiving results of the matrix multiplication on the Output pins.
 
 ## External hardware
-
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+MCU is necessary to feed weights and input data into the accelerator and fetch the results.
