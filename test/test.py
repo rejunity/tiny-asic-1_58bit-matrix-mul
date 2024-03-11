@@ -36,6 +36,8 @@ async def test_1(dut):
     
     await ClockCycles(dut.clk, 6)
     dut.ena.value = 0
+    dut.ui_in.value = 0
+    dut.uio_in.value = 0
     await ClockCycles(dut.clk, 1)
     dut.ena.value = 1
 
