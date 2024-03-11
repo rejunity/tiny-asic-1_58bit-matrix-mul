@@ -74,7 +74,7 @@ module systolic_array (
 
     output wire [7:0] out
 );
-    localparam SLICES = 2;
+    localparam SLICES = 1;
     localparam W = 1 * SLICES;
     localparam H = 4 * SLICES;
 
@@ -109,10 +109,6 @@ module systolic_array (
             arg_left_sign <= 0;
             arg_top <= 0;
         end else begin
-            // arg_left_zero <= in_left_zero;
-            // arg_left_sign <= in_left_sign;
-            // arg_top <= in_top;
-
             arg_left_zero[slice_counter*4 +: 4] <= in_left_zero;
             arg_left_sign[slice_counter*4 +: 4] <= in_left_sign;
             arg_top[slice_counter*8 +: 8] <= in_top;
@@ -146,5 +142,5 @@ module systolic_array (
         end
     endgenerate
 
-    assign out = out_queue[out_queue_index] >> 8;
+    assign out = out_queue[out_queue_index][7:0];// >> 8;
 endmodule
