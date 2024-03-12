@@ -73,6 +73,7 @@ module systolic_array (
 );
     localparam SLICES = 2;
     localparam SLICE_BITS = $clog2(SLICES);
+    localparam SLICES_MINUS_1 = SLICES - 1;
     localparam W = 1 * SLICES;
     localparam H = 4 * SLICES;
     localparam ARRAY_SIZE_BITS = $clog2(W*H);
@@ -97,9 +98,9 @@ module systolic_array (
 
     integer n;
     always @(posedge clk) begin
-        if (reset | restart_inputs)
+        if (reset | restart_inputs | slice_counter == SLICES_MINUS_1)
             slice_counter <= 0;
-        else if (SLICES > 1)
+        else
             slice_counter <= slice_counter + 1;
 
         if (reset | restart_out_queue)
