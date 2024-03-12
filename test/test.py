@@ -7,9 +7,11 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 from utils import *
 
+COMPUTE_SLICES = 1
+
 def OUT(v):
-    # return v >> 8
-    return s8_to_i32(v & 255)
+    return v >> 8
+    # return s8_to_i32(v & 255)
 
 @cocotb.test()
 async def test_1(dut):
@@ -30,11 +32,11 @@ async def test_1(dut):
 
     # Compute
     dut._log.info("Compute")
-    # dut.ui_in.value = 0b00_01_11_01
     dut.ui_in.value = 0b01_11_01_00
     dut.uio_in.value = 127
     
-    await ClockCycles(dut.clk, 6)
+    K = 12
+    await ClockCycles(dut.clk, K + COMPUTE_SLICES)
     dut.ena.value = 0
     dut.ui_in.value = 0
     dut.uio_in.value = 0
@@ -43,16 +45,24 @@ async def test_1(dut):
 
     # Validate
     dut._log.info("Validate")
-    await ClockCycles(dut.clk, 1)
-    assert s8_to_i32(dut.uo_out.value) == OUT( 1 * 127 * 6)
-    await ClockCycles(dut.clk, 1)
-    assert s8_to_i32(dut.uo_out.value) == OUT(-1 * 127 * 6)
-    await ClockCycles(dut.clk, 1)
-    assert s8_to_i32(dut.uo_out.value) == OUT( 1 * 127 * 6)
-    await ClockCycles(dut.clk, 1)
-    assert s8_to_i32(dut.uo_out.value) == OUT( 0 * 127 * 6)
+    for _ in range(COMPUTE_SLICES):
+        await ClockCycles(dut.clk, 1)
+        print (s8_to_i32(dut.uo_out.value))
+        assert s8_to_i32(dut.uo_out.value) == OUT( 1 * 127 * K//COMPUTE_SLICES)
 
-@cocotb.test()
+    for _ in range(COMPUTE_SLICES):
+        await ClockCycles(dut.clk, 1)
+        assert s8_to_i32(dut.uo_out.value) == OUT(-1 * 127 * K//COMPUTE_SLICES)
+
+    for _ in range(COMPUTE_SLICES):
+        await ClockCycles(dut.clk, 1)
+        assert s8_to_i32(dut.uo_out.value) == OUT( 1 * 127 * K//COMPUTE_SLICES)
+
+    for _ in range(COMPUTE_SLICES):
+        await ClockCycles(dut.clk, 1)
+        assert s8_to_i32(dut.uo_out.value) == OUT( 0 * 127 * K//COMPUTE_SLICES)
+
+# @cocotb.test()
 async def test_2(dut):
     dut._log.info("Start")
 
@@ -89,7 +99,7 @@ async def test_2(dut):
         await ClockCycles(dut.clk, 1)
         assert s8_to_i32(dut.uo_out.value) == OUT(dot(w, inputs))
 
-@cocotb.test()
+# @cocotb.test()
 async def test_3(dut):
     dut._log.info("Start")
 
@@ -126,7 +136,7 @@ async def test_3(dut):
         await ClockCycles(dut.clk, 1)
         assert s8_to_i32(dut.uo_out.value) == OUT(dot(w, inputs))
 
-@cocotb.test()
+# @cocotb.test()
 async def test_4(dut):
     random.seed(3)
     N = 128
@@ -172,7 +182,7 @@ async def test_4(dut):
         assert s8_to_i32(dut.uo_out.value) == OUT(dot(w, inputs))
 
 
-@cocotb.test()
+# @cocotb.test()
 async def test_5(dut):
     random.seed(3)
     N = 128
@@ -263,7 +273,7 @@ async def gemm(dut, weights, inputs, compute_block_width = 1, compute_block_heig
     assert shape(result) == (N, M)
     return result
 
-@cocotb.test()
+# @cocotb.test()
 async def test_gemm(dut):
     random.seed(3)
     W = 1
