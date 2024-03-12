@@ -74,7 +74,7 @@ module systolic_array (
 
     output wire [7:0] out
 );
-    localparam SLICES = 1;
+    localparam SLICES = 2;
     localparam SLICE_BITS = $clog2(SLICES);
     localparam W = 1 * SLICES;
     localparam H = 4 * SLICES;
