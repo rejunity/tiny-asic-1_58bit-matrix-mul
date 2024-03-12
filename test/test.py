@@ -7,7 +7,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 from utils import *
 
-COMPUTE_SLICES = 1
+COMPUTE_SLICES = 2
 COMPUTE_BLOCK_WIDTH = 1*COMPUTE_SLICES
 COMPUTE_BLOCK_HEIGHT = 4*COMPUTE_SLICES
 
