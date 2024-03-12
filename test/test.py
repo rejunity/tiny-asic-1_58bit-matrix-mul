@@ -7,11 +7,14 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 from utils import *
 
-COMPUTE_SLICES = 4
+COMPUTE_SLICES = 2
+COMPUTE_BLOCK_WIDTH = 1*COMPUTE_SLICES
+COMPUTE_BLOCK_HEIGHT = 4*COMPUTE_SLICES
+
 
 def OUT(v):
-    return v >> 8
-    # return s8_to_i32(v & 255)
+    # return v >> 8
+    return s8_to_i32(v & 255)
 
 @cocotb.test()
 async def test_1(dut):
@@ -225,23 +228,25 @@ async def test_5(dut):
         # print (dut.uo_out.value, int(dut.uo_out.value), s8_to_i32(dut.uo_out.value))
         assert s8_to_i32(dut.uo_out.value) == OUT(v)
 
-async def gemm(dut, weights, inputs, compute_block_width = 1, compute_block_height = 4):
+async def gemm(dut, weights, inputs, compute_block_width = 1, compute_block_height = 4, compute_slices = 1):
     # print ("W $", shape(weights))
     # print ("X $", shape(inputs))
 
-    N = len(weights) // compute_block_height
-    M = len(inputs[0]) // compute_block_width
-    assert len(weights[0]) == len(inputs)
-    K = len(weights[0])
+    W = compute_block_width
+    H = compute_block_height
 
-    # zigzag_weights_unpacked = zigzag_h(weights, compute_block_height)
-    zigzag_weights = pack_weights_as_u8_array(zigzag_h(weights, compute_block_height))
-    zigzag_inputs  = zigzag_w(inputs, compute_block_width)
+    N = len(weights) // H
+    M = len(inputs[0]) // W
+    assert len(weights[0]) == len(inputs)
+    K = len(weights[0]) * compute_slices
+
+    zigzag_weights = pack_weights_as_u8_array(zigzag_h(weights, H))
+    zigzag_inputs  = zigzag_w(inputs, W)
     
     assert len(zigzag_weights) == N * K
     assert len(zigzag_inputs) == K * M
 
-    result = []
+    result = const_matrix(0, (N*H, M*W))
     for m in range(M):
         for n in range(N):
             # Set inputs & compute
@@ -250,7 +255,12 @@ async def gemm(dut, weights, inputs, compute_block_width = 1, compute_block_heig
             for x, w in zip(inputs_for_compute, weights_for_compute):
                 dut.uio_in.value = x
                 dut.ui_in.value  = w
-                await ClockCycles(dut.clk, 1)    
+                await ClockCycles(dut.clk, 1)
+
+            # Wait until all slices have finished accunulating
+            dut.ui_in.value = 0
+            dut.uio_in.value = 0
+            await ClockCycles(dut.clk, compute_slices)
 
             # Move accumulators to output queue
             dut.ena.value = 0
@@ -259,35 +269,18 @@ async def gemm(dut, weights, inputs, compute_block_width = 1, compute_block_heig
             await ClockCycles(dut.clk, 1)
             dut.ena.value = 1
 
-            for _ in range(compute_block_width * compute_block_height):
-                await ClockCycles(dut.clk, 1)
-                result.append(s8_to_i32(dut.uo_out.value))
+            for h in range(H):
+                for w in range(W):
+                    await ClockCycles(dut.clk, 1)
+                    result[n*H+h][m*W+w] = s8_to_i32(dut.uo_out.value)
 
-    assert len(result) == N * M * compute_block_height * compute_block_width
-
-    # transpose result & shape as 2d array 
-    N *= compute_block_height
-    M *= compute_block_width
-    result = [result[i+j] for j in range(N) for i in range(0, len(result), N)]
-    result = [result[i:i+M] for i in range(0, len(result), M)]
-    assert shape(result) == (N, M)
+    assert shape(result) == (N*H, M*W)
     return result
 
-# @cocotb.test()
-async def test_gemm(dut):
-    random.seed(3)
-    W = 1
-    H = 4
-
-    N = 4
-    K = 128
-    M = 3
-    weights  = random_matrix(  -1,   1, (N*H, K))
-    inputs   = random_matrix(-127, 127, (K, M*W))
-    expected = matrix_mul(weights, inputs)
-    # print ("W = ", weights, shape(weights))
-    # print ("X = ", inputs, shape(inputs))
-    # print ("O =", expected, shape(expected))
+async def reset_run_and_validate_gemm(dut, weights, inputs, expected, verbose=False):
+    if verbose:
+        print ("W =", weights, "shape =", shape(weights))
+        print ("X =", inputs, "shape =", shape(inputs))
 
     dut._log.info("Start")
     clock = Clock(dut.clk, 10, units="us")
@@ -296,20 +289,93 @@ async def test_gemm(dut):
     # Reset
     dut._log.info("Reset")
     dut.rst_n.value = 0
+    dut.ui_in.value = 0
+    dut.uio_in.value = 0
     await ClockCycles(dut.clk, 4)
     dut.rst_n.value = 1
 
     # Compute
     dut._log.info("Compute")
-    dut_result = await gemm(dut, weights, inputs, W, H)
+    dut_result = await gemm(dut, weights, inputs, \
+                            COMPUTE_BLOCK_WIDTH,  \
+                            COMPUTE_BLOCK_HEIGHT, \
+                            COMPUTE_SLICES)
 
     # Validate
     dut._log.info("Validate")
     # expected = flatten(transpose(expected))
     assert shape(expected) == shape(dut_result)
-    print ("O =", expected, "shape =", shape(expected))
-    print ("O'=", [OUT(v) for v in flatten(expected)])
-    print ("R =", flatten(dut_result), "shape =", shape(dut_result))
+    if verbose:
+        print ("O =", expected, "shape =", shape(expected))
+        print ("O'=", [OUT(v) for v in flatten(expected)])
+        print ("R =", flatten(dut_result), "shape =", shape(dut_result))
+    else:
+        print (f"W{shape(weights)} * X{shape(inputs)} = expected{shape(expected)} /d got{shape(dut_result)}")
 
     for v, r in zip(flatten(expected), flatten(dut_result)):
         assert OUT(v) == r
+
+@cocotb.test()
+async def test_gemm_positive_weights(dut):
+    random.seed(3)
+
+    N = 1  *COMPUTE_BLOCK_HEIGHT
+    K = 4
+    M = 1  *COMPUTE_BLOCK_WIDTH
+    weights  = const_matrix(   1, (N, K))
+    inputs   = const_matrix( 127, (K, M))
+    expected = matrix_mul(weights, inputs)
+
+    await reset_run_and_validate_gemm(dut, weights, inputs, expected)
+
+@cocotb.test()
+async def test_gemm_negative_weights(dut):
+    random.seed(3)
+
+    N = 1  *COMPUTE_BLOCK_HEIGHT
+    K = 4
+    M = 1  *COMPUTE_BLOCK_WIDTH
+    weights  = const_matrix(  -1, (N, K))
+    inputs   = const_matrix( 127, (K, M))
+    expected = matrix_mul(weights, inputs)
+
+    await reset_run_and_validate_gemm(dut, weights, inputs, expected)
+
+@cocotb.test()
+async def test_gemm_negative_inputs(dut):
+    random.seed(3)
+
+    N = 1  *COMPUTE_BLOCK_HEIGHT
+    K = 4
+    M = 1  *COMPUTE_BLOCK_WIDTH
+    weights  = const_matrix(   1, (N, K))
+    inputs   = const_matrix(-127, (K, M))
+    expected = matrix_mul(weights, inputs)
+
+    await reset_run_and_validate_gemm(dut, weights, inputs, expected)
+
+@cocotb.test()
+async def test_gemm_small(dut):
+    random.seed(3)
+
+    N = 1  *COMPUTE_BLOCK_HEIGHT
+    K = 16
+    M = 1  *COMPUTE_BLOCK_WIDTH
+    weights  = random_matrix(  -1,   1, (N, K))
+    inputs   = random_matrix(-127, 127, (K, M))
+    expected = matrix_mul(weights, inputs)
+
+    await reset_run_and_validate_gemm(dut, weights, inputs, expected)
+
+@cocotb.test()
+async def test_gemm_large(dut):
+    random.seed(3)
+
+    N = 4  *COMPUTE_BLOCK_HEIGHT
+    K = 128
+    M = 3  *COMPUTE_BLOCK_WIDTH
+    weights  = random_matrix(  -1,   1, (N, K))
+    inputs   = random_matrix(-127, 127, (K, M))
+    expected = matrix_mul(weights, inputs)
+
+    await reset_run_and_validate_gemm(dut, weights, inputs, expected)
