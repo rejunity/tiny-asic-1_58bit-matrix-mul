@@ -7,7 +7,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 from utils import *
 
-COMPUTE_SLICES = 2
+COMPUTE_SLICES = 4
 
 def OUT(v):
     return v >> 8
