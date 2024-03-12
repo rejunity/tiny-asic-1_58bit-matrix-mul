@@ -7,14 +7,14 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 from utils import *
 
-COMPUTE_SLICES = 2
+COMPUTE_SLICES = 1
 COMPUTE_BLOCK_WIDTH = 1*COMPUTE_SLICES
 COMPUTE_BLOCK_HEIGHT = 4*COMPUTE_SLICES
 
 
 def OUT(v):
-    # return v >> 8
-    return s8_to_i32(v & 255)
+    return v >> 8
+    # return s8_to_i32(v & 255)
 
 @cocotb.test()
 async def test_1(dut):
