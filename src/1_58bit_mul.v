@@ -44,6 +44,8 @@ module tt_um_rejunity_1_58bit (
         .in_left_zero(weights_zero),
         .in_left_sign(weights_sign),
         .in_top(uio_in),
+
+        .restart_inputs(initiate_read_out),
         .reset_accumulators(initiate_read_out),
         .copy_accumulator_values_to_out_queue(initiate_read_out),
         .restart_out_queue(initiate_read_out),
@@ -53,12 +55,6 @@ module tt_um_rejunity_1_58bit (
 
 endmodule
 
-// module systolic_element (
-//     input wire zero,
-//     input wire sign,
-//     input wire arg
-// )
-
 module systolic_array (
     input  wire       clk,
     input  wire       reset,
@@ -66,6 +62,7 @@ module systolic_array (
     input  wire [3:0] in_left_zero,
     input  wire [3:0] in_left_sign,
     input  wire [7:0] in_top,
+    input  wire       restart_inputs,
     input  wire       reset_accumulators,
     input  wire       copy_accumulator_values_to_out_queue,
     input  wire       restart_out_queue,
@@ -74,7 +71,7 @@ module systolic_array (
 
     output wire [7:0] out
 );
-    localparam SLICES = 4;
+    localparam SLICES = 2;
     localparam SLICE_BITS = $clog2(SLICES);
     localparam W = 1 * SLICES;
     localparam H = 4 * SLICES;
@@ -100,7 +97,7 @@ module systolic_array (
 
     integer n;
     always @(posedge clk) begin
-        if (reset)
+        if (reset | restart_inputs)
             slice_counter <= 0;
         else if (SLICES > 1)
             slice_counter <= slice_counter + 1;
@@ -111,9 +108,6 @@ module systolic_array (
             out_queue_counter <= out_queue_counter + 1;
 
         if (reset) begin
-            // arg_left_zero_curr <= 0;
-            // arg_left_sign_curr <= 0;
-            // arg_top_curr <= 0;
             arg_left_zero_next <= 0;
             arg_left_sign_next <= 0;
             arg_top_next <= 0;
@@ -158,5 +152,6 @@ module systolic_array (
         end
     endgenerate
 
-    assign out = out_queue[out_queue_counter] >> 8;
+    // assign out = out_queue[out_queue_counter] >> 8;
+    assign out = out_queue[out_queue_counter][7:0];
 endmodule
