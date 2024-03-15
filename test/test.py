@@ -7,9 +7,13 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 from utils import *
 
-COMPUTE_SLICES = 3
-COMPUTE_BLOCK_WIDTH = 1*COMPUTE_SLICES
-COMPUTE_BLOCK_HEIGHT = 4*COMPUTE_SLICES
+# PACK_5_WEIGHTS = False
+PACK_5_WEIGHTS = True
+COMPUTE_SLICES = 1
+
+WEIGHTS_PER_BYTE     = 5 if PACK_5_WEIGHTS else 4
+COMPUTE_BLOCK_WIDTH  = 1               *COMPUTE_SLICES
+COMPUTE_BLOCK_HEIGHT = WEIGHTS_PER_BYTE*COMPUTE_SLICES
 
 
 def OUT(v):
@@ -26,8 +30,7 @@ async def test_1(dut):
     # Reset
     dut._log.info("Reset")
     dut.ena.value = 1
-    # dut.ui_in.value = 0b00_01_11_01
-    dut.ui_in.value = 0b01_11_01_00
+    dut.ui_in.value = (1*3**4 + 2*3**3 + 1*3**2 + 0*3**1 + 2*3**0) if PACK_5_WEIGHTS else 0b01_11_01_00
     dut.uio_in.value = 0
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 4)
@@ -35,7 +38,7 @@ async def test_1(dut):
 
     # Compute
     dut._log.info("Compute")
-    dut.ui_in.value = 0b01_11_01_00
+    dut.ui_in.value = (1*3**4 + 2*3**3 + 1*3**2 + 0*3**1 + 2*3**0) if PACK_5_WEIGHTS else 0b01_11_01_00
     dut.uio_in.value = 127
     
     K = 12
@@ -64,6 +67,11 @@ async def test_1(dut):
     for _ in range(COMPUTE_SLICES):
         await ClockCycles(dut.clk, 1)
         assert s8_to_i32(dut.uo_out.value) == OUT( 0 * 127 * K//COMPUTE_SLICES)
+
+    if PACK_5_WEIGHTS:
+        for _ in range(COMPUTE_SLICES):
+            await ClockCycles(dut.clk, 1)
+            assert s8_to_i32(dut.uo_out.value) == OUT( -1 * 127 * K//COMPUTE_SLICES)
 
 # @cocotb.test()
 async def test_2(dut):
@@ -228,9 +236,7 @@ async def test_5(dut):
         # print (dut.uo_out.value, int(dut.uo_out.value), s8_to_i32(dut.uo_out.value))
         assert s8_to_i32(dut.uo_out.value) == OUT(v)
 
-async def gemm(dut, weights, inputs, compute_block_width = 1, compute_block_height = 4, compute_slices = 1):
-    # print ("W $", shape(weights))
-    # print ("X $", shape(inputs))
+async def gemm(dut, weights, inputs, weights_per_byte = 4, compute_block_width = 1, compute_block_height = 4, compute_slices = 1, verbose=False):
 
     W = compute_block_width
     H = compute_block_height
@@ -240,8 +246,12 @@ async def gemm(dut, weights, inputs, compute_block_width = 1, compute_block_heig
     assert len(weights[0]) == len(inputs)
     K = len(weights[0]) * compute_slices
 
-    zigzag_weights = pack_weights_as_u8_array(zigzag_h(weights, H))
+    zigzag_weights = pack_weights_as_u8_array(zigzag_h(weights, H), weights_per_byte)
     zigzag_inputs  = zigzag_w(inputs, W)
+    
+    if verbose:
+        print (f"packed W = {zigzag_weights} zigzag W = {zigzag_h(weights, H)}")
+        print (f"zigzag X = {zigzag_inputs}")
     
     assert len(zigzag_weights) == N * K
     assert len(zigzag_inputs) == K * M
@@ -252,6 +262,11 @@ async def gemm(dut, weights, inputs, compute_block_width = 1, compute_block_heig
             # Set inputs & compute
             weights_for_compute = zigzag_weights[n*K:(n+1)*K]
             inputs_for_compute = zigzag_inputs[m*K:(m+1)*K]
+            if (verbose):
+                print (f"compute R[n={n}, m={m}]")
+                print (f"compute W = {weights_for_compute} zigzag W = {zigzag_h(weights, H)[n*K:(n+1)*K]}")
+                print (f"compute X = {inputs_for_compute}")
+
             for x, w in zip(inputs_for_compute, weights_for_compute):
                 dut.uio_in.value = x
                 dut.ui_in.value  = w
@@ -297,9 +312,11 @@ async def reset_run_and_validate_gemm(dut, weights, inputs, expected, verbose=Fa
     # Compute
     dut._log.info("Compute")
     dut_result = await gemm(dut, weights, inputs, \
+                            WEIGHTS_PER_BYTE,  \
                             COMPUTE_BLOCK_WIDTH,  \
                             COMPUTE_BLOCK_HEIGHT, \
-                            COMPUTE_SLICES)
+                            COMPUTE_SLICES,
+                            verbose=verbose)
 
     # Validate
     dut._log.info("Validate")
@@ -310,7 +327,7 @@ async def reset_run_and_validate_gemm(dut, weights, inputs, expected, verbose=Fa
         print ("O'=", [OUT(v) for v in flatten(expected)])
         print ("R =", flatten(dut_result), "shape =", shape(dut_result))
     else:
-        print (f"W{shape(weights)} * X{shape(inputs)} = expected{shape(expected)} /d got{shape(dut_result)}")
+        print (f"W{shape(weights)} * X{shape(inputs)} = expected{shape(expected)} / got{shape(dut_result)}")
 
     for v, r in zip(flatten(expected), flatten(dut_result)):
         assert OUT(v) == r
