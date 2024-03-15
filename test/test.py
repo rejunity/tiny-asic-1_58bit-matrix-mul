@@ -53,7 +53,6 @@ async def test_1(dut):
     dut._log.info("Validate")
     for _ in range(COMPUTE_SLICES):
         await ClockCycles(dut.clk, 1)
-        print (s8_to_i32(dut.uo_out.value))
         assert s8_to_i32(dut.uo_out.value) == OUT( 1 * 127 * K//COMPUTE_SLICES)
 
     for _ in range(COMPUTE_SLICES):

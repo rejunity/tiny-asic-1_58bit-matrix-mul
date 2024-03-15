@@ -36,8 +36,6 @@ assert pack_weights([-1, 1, -1, 1, -1], weights_per_byte=5) == 2*3**4 + 1*3**3 +
 def pack_weights_as_u8_array(weights, weights_per_byte=4):
     return [pack_weights(weights[i:i+weights_per_byte], weights_per_byte) for i in range(0, len(weights), weights_per_byte)]
 assert pack_weights_as_u8_array([-1, 1, -1, 1, -1]*4, weights_per_byte=5) == [2*3**4 + 1*3**3 + 2*3**2 + 1*3**1 + 2*3**0]*4
-print(pack_weights_as_u8_array( [-1, 1, 1, -1, 1, 1, 0, -1, -1, 0, 1, 1, 0, 1, 0, -1, 1, 0, 0, 1, 0, -1, 1, 1, -1], weights_per_byte=5))
-print(pack_weights_as_u8_array( [0, -1, 1, 1, -1], weights_per_byte=5))
 
 def unpack_weights(packed, weights_per_byte=4):
     weights = []
@@ -132,13 +130,6 @@ assert matrix_mul([[-1, 1, 1, -1, 0, 1], [0, 1, 1, -1, 1, -1], [0, 0, 1, -1, -1,
 # import numpy as np
 # assert(np.all(matrix_mul(A, B) == np.array(A) @ np.array(B)))
 # print(np.array(matrix_mul(A, B)).shape)
-
-
-print([-1, 1, 1, -1, 0],  [1, 0, 1, 1, -1],  [1, -1, 0, 0, 1],  [-1, -1, 1, 0, 1],  [1, 0, 0, 1, -1])
-print(transpose([[-1, 1, 1, -1, 0],  [1, 0, 1, 1, -1],  [1, -1, 0, 0, 1],  [-1, -1, 1, 0, 1],  [1, 0, 0, 1, -1]]))
-print(zigzag_h([[-1, 1, 1, -1, 0],  [1, 0, 1, 1, -1],  [1, -1, 0, 0, 1],  [-1, -1, 1, 0, 1],  [1, 0, 0, 1, -1]], 5))
-print(pack_weights_as_u8_array(zigzag_h([[-1, 1, 1, -1, 0],  [1, 0, 1, 1, -1],  [1, -1, 0, 0, 1],  [-1, -1, 1, 0, 1],  [1, 0, 0, 1, -1]], 5), weights_per_byte=5))
-print(pack_weights_as_u8_array(flatten(transpose([[-1, 1, 1, -1, 0],  [1, 0, 1, 1, -1],  [1, -1, 0, 0, 1],  [-1, -1, 1, 0, 1],  [1, 0, 0, 1, -1]])), weights_per_byte=5))
 
 
 # print(\
