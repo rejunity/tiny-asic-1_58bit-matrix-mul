@@ -136,7 +136,10 @@ module systolic_array (
         // will treat <= assignments inside the loop as errors
         // See similar bug report and workaround here:
         //   https://github.com/verilator/verilator/issues/2782
-        /*verilator unroll_full*/
+        // Ideally unroll_full Verilator metacommand should be used,
+        // however it is supported only from Verilator 5.022 (#3260) [Jiaxun Yang]
+        // Instead BLKLOOPINIT errors are suppressed for this loop
+        /* verilator lint_off BLKLOOPINIT */
         for (n = 0; n < W*H; n = n + 1) begin
             if (reset | reset_accumulators)
                 accumulators[n] <= 0;
@@ -146,6 +149,7 @@ module systolic_array (
             if (copy_accumulator_values_to_out_queue)
                 out_queue[n]    <= accumulators_next[n];
         end
+        /* verilator lint_on BLKLOOPINIT */
     end
 
     genvar i, j;
