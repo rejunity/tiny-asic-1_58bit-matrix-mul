@@ -134,6 +134,10 @@ module systolic_array (
             arg_top_curr <= arg_top_next;
         end
 
+        // loooks like a bug in Verilator
+        // https://github.com/verilator/verilator/issues/2782
+        
+        /*verilator&32;unroll_full*/
         for (n = 0; n < W*H; n = n + 1) begin
             if (reset | reset_accumulators)
                 accumulators[n] <= 0;
