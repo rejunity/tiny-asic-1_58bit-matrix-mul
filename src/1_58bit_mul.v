@@ -3,11 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 // TODOs:
+//  * special weights 243..255 can be used to   a) initiate readout,
+//                                              b) shift accumulators by 1,
+//                                              c) set beta&gamma,
+//                                              d) choose signed/unsigned inputs,
+//                                              e) handle overflow or ReLU
 //  * separate signal to shift accumulators by 1
 //  * multiply by gamma and add beta
 //  * handle both signed & unsigned inputs
+//  * handle overflows
+//  * ReLU
 
 `define default_netname none
 
@@ -34,6 +40,7 @@ module tt_um_rejunity_1_58bit (
     // wire [3:0] weights_sign =   {  ui_in[7  ],  ui_in[5  ],   ui_in[3  ],  ui_in[1  ] };
 
 
+    // unpack ternary weights
     wire [4:0] weights_zero;
     wire [4:0] weights_sign;
     unpack_ternary_weights unpack_ternary_weights(
@@ -74,8 +81,8 @@ module systolic_array (
     input  wire       reset_accumulators,
     input  wire       copy_accumulator_values_to_out_queue,
     input  wire       restart_out_queue,
-    //input wire [2:0] apply_shift_to_out,
-    //input wire       apply_relu_to_out,
+    //input wire      apply_shift_to_accumulators,
+    //input wire      apply_relu_to_out,
 
     output wire [7:0] out
 );
@@ -93,10 +100,6 @@ module systolic_array (
     reg [H  -1:0] arg_left_zero_next;
     reg [H  -1:0] arg_left_sign_next;
     reg [W*8-1:0] arg_top_next;
-
-    // wire [H  -1:0] arg_left_zero = in_left_zero;
-    // wire [H  -1:0] arg_left_sign = in_left_sign;
-    // wire [W*8-1:0] arg_top = in_top;
 
     reg  [SLICE_BITS-1:0] slice_counter;
     reg  signed [16:0] accumulators      [W*H-1:0];
@@ -159,10 +162,8 @@ module systolic_array (
             wire [16:0] value_curr  = accumulators     [i*W+j];
             wire [16:0] value_next  = accumulators_next[i*W+j];
             wire [16:0] value_queue = out_queue        [i*W+j];
-            wire skip_a = (j != slice_counter) ;
-            wire skip_b = arg_left_zero_curr[i];
             wire skip = (j != slice_counter) | arg_left_zero_curr[i];
-            wire sign = arg_left_sign_scurr[i];
+            wire sign = arg_left_sign_curr[i];
             wire signed [7:0] addend = $signed(arg_top_curr[j*8 +: 8]);
             assign accumulators_next[i*W+j] =
                  reset  ? 0 :
