@@ -1,11 +1,11 @@
 # Tiny Tapeout project information
 project:
   title:        "1.58bit accelerator"      # Project title
-  author:       "ReJ aka Renaldas Zioma"      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "1.58bit x 8bit matrix multiplier block"      # One line description of what your project does
-  language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
+  author:       "ReJ aka Renaldas Zioma"
+  discord:      "rzioma"
+  description:  "1.58bit x 8bit matrix multiplier block"
+  language:     "Verilog"
+  clock_hz:     48000000       # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
   tiles: "8x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
