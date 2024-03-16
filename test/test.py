@@ -9,7 +9,7 @@ from utils import *
 
 # PACK_5_WEIGHTS = False
 PACK_5_WEIGHTS = True
-COMPUTE_SLICES = 4
+COMPUTE_SLICES = 3
 
 WEIGHTS_PER_BYTE     = 5 if PACK_5_WEIGHTS else 4
 COMPUTE_BLOCK_WIDTH  = 1               *COMPUTE_SLICES
@@ -21,7 +21,7 @@ def OUT(v):
     # return s8_to_i32(v & 255)
 
 @cocotb.test()
-async def test_1(dut):
+async def test_basics(dut):
     dut._log.info("Start")
 
     clock = Clock(dut.clk, 10, units="us")
@@ -71,169 +71,6 @@ async def test_1(dut):
         for _ in range(COMPUTE_SLICES):
             await ClockCycles(dut.clk, 1)
             assert s8_to_i32(dut.uo_out.value) == OUT( -1 * 127 * K//COMPUTE_SLICES)
-
-# @cocotb.test()
-async def test_2(dut):
-    dut._log.info("Start")
-
-    clock = Clock(dut.clk, 10, units="us")
-    cocotb.start_soon(clock.start())
-
-    # Reset
-    dut._log.info("Reset")
-    dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 4)
-    dut.rst_n.value = 1
-
-    # Compute
-    weights = [1, 0, -1, 0]
-    inputs = [127] * 6
-
-    dut._log.info("Compute")
-    dut.ui_in.value = pack_weights(weights)
-    for x in inputs:
-        dut.uio_in.value = x
-        await ClockCycles(dut.clk, 1)
-    
-    # Move accumulators to output queue
-    dut.ena.value = 0
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-    await ClockCycles(dut.clk, 1)
-    dut.ena.value = 1
-
-    # Validate
-    dut._log.info("Validate")
-
-    for w in weights:
-        await ClockCycles(dut.clk, 1)
-        assert s8_to_i32(dut.uo_out.value) == OUT(dot(w, inputs))
-
-# @cocotb.test()
-async def test_3(dut):
-    dut._log.info("Start")
-
-    clock = Clock(dut.clk, 10, units="us")
-    cocotb.start_soon(clock.start())
-
-    # Reset
-    dut._log.info("Reset")
-    dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 4)
-    dut.rst_n.value = 1
-
-    # Compute
-    weights = [1, 0, -1, 0]
-    inputs = range(127)
-
-    dut._log.info("Compute")
-    dut.ui_in.value = pack_weights(weights)
-    for x in inputs:
-        dut.uio_in.value = x
-        await ClockCycles(dut.clk, 1)
-    
-    # Move accumulators to output queue
-    dut.ena.value = 0
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-    await ClockCycles(dut.clk, 1)
-    dut.ena.value = 1
-
-    # Validate
-    dut._log.info("Validate")
-
-    for w in weights:
-        await ClockCycles(dut.clk, 1)
-        assert s8_to_i32(dut.uo_out.value) == OUT(dot(w, inputs))
-
-# @cocotb.test()
-async def test_4(dut):
-    random.seed(3)
-    N = 128
-    weights = random_matrix(-1, 1, (N, 4))
-    packed_weights = pack_weights(flatten(weights))
-    inputs = range(N)
-
-    dut._log.info("Start")
-    clock = Clock(dut.clk, 10, units="us")
-    cocotb.start_soon(clock.start())
-
-    # Reset
-    dut._log.info("Reset")
-    dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 4)
-    dut.rst_n.value = 1
-
-    # Compute
-    dut._log.info("Compute")
-    # for x, w in zip(inputs, packed_weights):
-    for x in reversed(inputs):
-        dut.uio_in.value = x
-        dut.ui_in.value  = packed_weights & 255
-        packed_weights >>= 8
-        await ClockCycles(dut.clk, 1)
-    
-    # Move accumulators to output queue
-    dut.ena.value = 0
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-    await ClockCycles(dut.clk, 1)
-    dut.ena.value = 1
-
-    # Validate
-    dut._log.info("Validate")
-
-    # for w in transpose(weights):
-    #     print (dot(w, inputs), OUT(dot(w, inputs)), s8_to_i32(dot(w, inputs) & 255))
-
-    for w in transpose(weights):
-        await ClockCycles(dut.clk, 1)
-        # print (dut.uo_out.value, int(dut.uo_out.value), s8_to_i32(dut.uo_out.value))
-        assert s8_to_i32(dut.uo_out.value) == OUT(dot(w, inputs))
-
-
-# @cocotb.test()
-async def test_5(dut):
-    random.seed(3)
-    N = 128
-    weights  = random_matrix(-1, 1, (4, N))
-    inputs   = random_matrix(-127, 127, (N, 1))
-    expected = matrix_mul(weights, inputs)
-    packed_weights = pack_weights_as_u8_array(zigzag_h(weights, 4))
-    packed_inputs = zigzag_w(inputs, 1)
-    
-    dut._log.info("Start")
-    clock = Clock(dut.clk, 10, units="us")
-    cocotb.start_soon(clock.start())
-
-    # Reset
-    dut._log.info("Reset")
-    dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 4)
-    dut.rst_n.value = 1
-
-    # Compute
-    dut._log.info("Compute")
-    for x, w in zip(packed_inputs, packed_weights):
-        dut.uio_in.value = x
-        dut.ui_in.value = w
-        await ClockCycles(dut.clk, 1)
-    
-    # Move accumulators to output queue
-    dut.ena.value = 0
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-    await ClockCycles(dut.clk, 1)
-    dut.ena.value = 1
-
-    # Validate
-    dut._log.info("Validate")
-
-    # for w in transpose(weights):
-    for v in flatten(expected):
-        await ClockCycles(dut.clk, 1)
-        # print (dut.uo_out.value, int(dut.uo_out.value), s8_to_i32(dut.uo_out.value))
-        assert s8_to_i32(dut.uo_out.value) == OUT(v)
 
 async def gemm(dut, weights, inputs, weights_per_byte = 4, compute_block_width = 1, compute_block_height = 4, compute_slices = 1, verbose=False):
 
