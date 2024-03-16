@@ -159,4 +159,4 @@ def generate_verilog_module_to_unpack_ternary_weights(func_name="unpack_ternary_
         "        endcase\n"
         "    end\n"
         "endmodule\n")
-generate_verilog_module_to_unpack_ternary_weights()
+# generate_verilog_module_to_unpack_ternary_weights()
