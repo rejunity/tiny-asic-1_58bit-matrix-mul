@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Your Name
+ * Copyright (c) 2024 ReJ aka Renaldas Zioma
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,11 +9,14 @@
 //                                              c) set beta&gamma,
 //                                              d) choose signed/unsigned inputs,
 //                                              e) handle overflow or ReLU
+//  * test overlap between computations and readouts
 //  * separate signal to shift accumulators by 1
 //  * multiply by gamma and add beta
 //  * handle both signed & unsigned inputs
 //  * handle overflows
 //  * ReLU
+//  * parametrizalbe systolic_array
+//  * 4-bit input support
 
 `define default_netname none
 
