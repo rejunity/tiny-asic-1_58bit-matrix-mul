@@ -80,12 +80,12 @@ module systolic_array (
 
     output wire [7:0] out
 );
-    localparam SLICES = 3;
+    localparam SLICES = 4;
     localparam SLICE_BITS = $clog2(SLICES);
     localparam SLICES_MINUS_1 = SLICES - 1;
     localparam W = 1 * SLICES;
     localparam H = 5 * SLICES;
-    localparam ARRAY_SIZE_BITS = $clog2(W*H);
+    localparam ARRAY_SIZE_BITS = 7;//$clog2(W*H);
 
     reg [H  -1:0] arg_left_zero_curr;
     reg [H  -1:0] arg_left_sign_curr;
