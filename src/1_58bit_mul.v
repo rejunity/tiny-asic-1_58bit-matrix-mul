@@ -105,8 +105,7 @@ module systolic_array (
     reg  signed [16:0] out_queue         [W*H-1:0];
     reg  [ARRAY_SIZE_BITS-1:0] out_queue_counter;
 
-    //integer n;
-    reg [7:0] n;
+    integer n;
     always @(posedge clk) begin
         if (reset | restart_inputs | slice_counter == SLICES_MINUS_1)
             slice_counter <= 0;
@@ -133,11 +132,12 @@ module systolic_array (
             arg_left_sign_curr <= arg_left_sign_next;
             arg_top_curr <= arg_top_next;
         end
-
-        // loooks like a bug in Verilator
-        // https://github.com/verilator/verilator/issues/2782
         
-        /*verilator&32;unroll_full*/
+        // The following loop must be unrolled, otherwise Verilator
+        // will treat <= assignments inside the loop as errors
+        // See similar bug report and workaround here:
+        //   https://github.com/verilator/verilator/issues/2782
+        /*verilator unroll_full*/
         for (n = 0; n < W*H; n = n + 1) begin
             if (reset | reset_accumulators)
                 accumulators[n] <= 0;
