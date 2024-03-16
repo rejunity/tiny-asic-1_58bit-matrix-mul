@@ -131,59 +131,32 @@ assert matrix_mul([[-1, 1, 1, -1, 0, 1], [0, 1, 1, -1, 1, -1], [0, 0, 1, -1, -1,
 # assert(np.all(matrix_mul(A, B) == np.array(A) @ np.array(B)))
 # print(np.array(matrix_mul(A, B)).shape)
 
+def generate_verilog_module_to_unpack_ternary_weights(func_name="unpack_ternary_weights", reverse_weight_order = True):
+    print(\
+        "module unpack_ternary_weights(input      [7:0] packed_weights,\n"
+        "                              output reg [4:0] weights_zero,\n"
+        "                              output reg [4:0] weights_sign);\n"
+        "    always @(*) begin\n"
+        "        case(packed_weights)")
 
-# print(\
-#     "module unpack_weights_r(input      [7:0] packed_weights,\n"
-#     "                      output reg [4:0] weights_zero,\n"
-#     "                      output reg [4:0] weights_sign);\n"
-#     "    always @(*) begin\n"
-#     "        case(packed_weights)")
+    for i in range(255):
+        weights_zero = 0b111_11 # if i != 0 else 1
+        weights_sign = 0
+        unpacked = unpack_weights(i, 5)
+        if len(unpacked) <= 5:
+            for w in (reversed(unpacked) if reverse_weight_order else unpacked):
+                weights_zero = (weights_zero << 1) | (w == 0)
+                weights_sign = (weights_sign << 1) | (w  < 0)
+            weights_zero &= 0b111_11
 
-# for i in range(255):
-#     weights_zero = 0b111_11 # if i != 0 else 1
-#     weights_sign = 0
-#     unpacked = unpack_weights(i, 5)
-#     if len(unpacked) <= 5:
-#         for w in reversed(unpacked):
-#             weights_zero = (weights_zero << 1) | (w == 0)
-#             weights_sign = (weights_sign << 1) | (w  < 0)
-#         weights_zero &= 0b111_11
-
-#         print(f"        8'd{str(i).zfill(3)}: begin"
-#             f" weights_zero = 5'b{bin(weights_zero)[2:].zfill(5)};"
-#             f" weights_sign = 5'b{bin(weights_sign)[2:].zfill(5)};"
-#             f" end // {unpack_weights(i, 5)}")
-# print(\
-#     "        default: {weights_zero, weights_sign} = 10'b0; // Default case\n"
-#     "        endcase\n"
-#     "    end\n"
-#     "endmodule\n")
-
-
-# print(\
-#     "module unpack_weights(input      [7:0] packed_weights,\n"
-#     "                      output reg [4:0] weights_zero,\n"
-#     "                      output reg [4:0] weights_sign);\n"
-#     "    always @(*) begin\n"
-#     "        case(packed_weights)")
-
-# for i in range(255):
-#     weights_zero = 0b111_11 # if i != 0 else 1
-#     weights_sign = 0
-#     unpacked = unpack_weights(i, 5)
-#     if len(unpacked) <= 5:
-#         for w in unpacked:
-#             weights_zero = (weights_zero << 1) | (w == 0)
-#             weights_sign = (weights_sign << 1) | (w  < 0)
-#         weights_zero &= 0b111_11
-
-#         print(f"        8'd{str(i).zfill(3)}: begin"
-#             f" weights_zero = 5'b{bin(weights_zero)[2:].zfill(5)};"
-#             f" weights_sign = 5'b{bin(weights_sign)[2:].zfill(5)};"
-#             f" end // {unpack_weights(i, 5)}")
-# print(\
-#     "        default: {weights_zero, weights_sign} = 10'b0; // Default case\n"
-#     "        endcase\n"
-#     "    end\n"
-#     "endmodule\n")
-
+            pretty_printed = ''.join([f"{str(n):>3}" for n in unpack_weights(i, 5)])
+            print(f"        8'd{str(i).zfill(3)}: begin"
+                f" weights_zero = 5'b{bin(weights_zero)[2:].zfill(5)};"
+                f" weights_sign = 5'b{bin(weights_sign)[2:].zfill(5)};"
+                f" end // {pretty_printed}")
+    print(\
+        "        default: {weights_zero, weights_sign} = 10'b0; // Default case\n"
+        "        endcase\n"
+        "    end\n"
+        "endmodule\n")
+generate_verilog_module_to_unpack_ternary_weights()
