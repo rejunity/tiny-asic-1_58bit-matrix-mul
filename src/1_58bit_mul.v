@@ -72,7 +72,9 @@ module tt_um_rejunity_1_58bit (
 
 endmodule
 
-module systolic_array (
+module systolic_array #(
+    parameter COMPUTE_SLICES = 3
+) (
     input  wire       clk,
     input  wire       reset,
 
@@ -88,7 +90,7 @@ module systolic_array (
 
     output wire [7:0] out
 );
-    localparam SLICES = 1;
+    localparam SLICES = COMPUTE_SLICES;
     localparam SLICE_BITS = $clog2(SLICES);
     localparam SLICES_MINUS_1 = SLICES - 1;
     localparam W = 1 * SLICES;

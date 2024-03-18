@@ -9,23 +9,31 @@ from utils import *
 
 # PACK_5_WEIGHTS = False
 PACK_5_WEIGHTS = True
-COMPUTE_SLICES = 1
+COMPUTE_SLICES = 1 # will be overriden by Verilog module parameter, don't change here!
 
 WEIGHTS_PER_BYTE     = 5 if PACK_5_WEIGHTS else 4
 COMPUTE_BLOCK_WIDTH  = 1               *COMPUTE_SLICES
 COMPUTE_BLOCK_HEIGHT = WEIGHTS_PER_BYTE*COMPUTE_SLICES
 
-
 def OUT(v):
     return v >> 8
     # return s8_to_i32(v & 255)
 
-@cocotb.test()
-async def test_basics(dut):
-    dut._log.info("Start")
+async def setup(dut):
+    # configure global variables according to Verilog module parameters
+    global COMPUTE_SLICES, WEIGHTS_PER_BYTE, COMPUTE_BLOCK_WIDTH, COMPUTE_BLOCK_HEIGHT
+    COMPUTE_SLICES       = int(dut.user_project.systolic_array.COMPUTE_SLICES.value)
+    WEIGHTS_PER_BYTE     = 5 if PACK_5_WEIGHTS else 4
+    COMPUTE_BLOCK_WIDTH  = 1               *COMPUTE_SLICES
+    COMPUTE_BLOCK_HEIGHT = WEIGHTS_PER_BYTE*COMPUTE_SLICES
 
+    dut._log.info("Start")
     clock = Clock(dut.clk, 10, units="us")
     cocotb.start_soon(clock.start())
+
+@cocotb.test()
+async def test_basics(dut):
+    await setup(dut)
 
     # Reset
     dut._log.info("Reset")
@@ -133,9 +141,7 @@ async def reset_run_and_validate_gemm(dut, weights, inputs, expected, verbose=Fa
         print ("W =", weights, "shape =", shape(weights))
         print ("X =", inputs, "shape =", shape(inputs))
 
-    dut._log.info("Start")
-    clock = Clock(dut.clk, 10, units="us")
-    cocotb.start_soon(clock.start())
+    await setup(dut)
 
     # Reset
     dut._log.info("Reset")
