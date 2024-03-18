@@ -73,7 +73,7 @@ module tt_um_rejunity_1_58bit (
 endmodule
 
 module systolic_array #(
-    parameter COMPUTE_SLICES = 3
+    parameter COMPUTE_SLICES = 2
 ) (
     input  wire       clk,
     input  wire       reset,
