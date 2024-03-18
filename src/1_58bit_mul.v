@@ -35,15 +35,14 @@ module tt_um_rejunity_1_58bit (
 
     wire reset = ! rst_n;
 
-    // decode ternary weights
+    // decode ternary weights - 4 ternary weights per byte
     // wire [3:0] weights_zero = ~ { |ui_in[1:0], |ui_in[3:2],  |ui_in[5:4], |ui_in[7:6] };
     // wire [3:0] weights_sign =   {  ui_in[1  ],  ui_in[3  ],   ui_in[5  ],  ui_in[7  ] };
     // -----------------------------------------------------
     // wire [3:0] weights_zero = ~ { |ui_in[7:6], |ui_in[5:4],  |ui_in[3:2], |ui_in[1:0] };
     // wire [3:0] weights_sign =   {  ui_in[7  ],  ui_in[5  ],   ui_in[3  ],  ui_in[1  ] };
 
-
-    // unpack ternary weights
+    // unpack ternary weights - 5 ternary weights per byte
     wire [4:0] weights_zero;
     wire [4:0] weights_sign;
     unpack_ternary_weights unpack_ternary_weights(
