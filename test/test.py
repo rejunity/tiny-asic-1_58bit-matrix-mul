@@ -9,7 +9,7 @@ from utils import *
 
 # PACK_5_WEIGHTS = False
 PACK_5_WEIGHTS = True
-COMPUTE_SLICES = 3
+COMPUTE_SLICES = 1
 
 WEIGHTS_PER_BYTE     = 5 if PACK_5_WEIGHTS else 4
 COMPUTE_BLOCK_WIDTH  = 1               *COMPUTE_SLICES
