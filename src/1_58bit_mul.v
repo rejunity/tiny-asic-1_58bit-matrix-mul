@@ -93,7 +93,6 @@ module systolic_array (
     localparam SLICES_MINUS_1 = SLICES - 1;
     localparam W = 1 * SLICES;
     localparam H = 5 * SLICES;
-    localparam ARRAY_SIZE_BITS = $clog2(W*H);
 
     reg [H  -1:0] arg_left_zero_curr;
     reg [H  -1:0] arg_left_sign_curr;
@@ -107,7 +106,6 @@ module systolic_array (
     reg  signed [16:0] accumulators      [W*H-1:0];
     wire signed [16:0] accumulators_next [W*H-1:0];
     reg  signed [16:0] out_queue         [W*H-1:0];
-    reg  [ARRAY_SIZE_BITS-1:0] out_queue_counter;
 
     integer n;
     always @(posedge clk) begin
@@ -115,11 +113,6 @@ module systolic_array (
             slice_counter <= 0;
         else
             slice_counter <= slice_counter + 1;
-
-        if (reset | restart_out_queue)
-            out_queue_counter <= 0;
-        else
-            out_queue_counter <= out_queue_counter + 1;
 
         if (reset) begin
             arg_left_zero_next <= 0;
@@ -153,6 +146,8 @@ module systolic_array (
 
             if (copy_accumulator_values_to_out_queue)
                 out_queue[n]    <= accumulators_next[n];
+            else if (n > 0)
+                out_queue[n-1]  <= out_queue[n];
         end
         /* verilator lint_on BLKLOOPINIT */
     end
@@ -175,7 +170,8 @@ module systolic_array (
         end
     endgenerate
 
-    assign out = out_queue[out_queue_counter] >> 8;
+    assign out = out_queue[0] >> 8;
+    // assign out = out_queue[out_queue_counter] >> 8;
     // assign out = out_queue[out_queue_counter][7:0];
 endmodule
 
