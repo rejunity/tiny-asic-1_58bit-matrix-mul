@@ -75,7 +75,7 @@ module tt_um_rejunity_1_58bit #(
 endmodule
 
 module systolic_array #(
-    parameter SLICES
+    parameter integer SLICES = 1
 ) (
     input  wire       clk,
     input  wire       reset,
