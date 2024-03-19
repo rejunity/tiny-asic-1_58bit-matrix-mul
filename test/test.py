@@ -20,16 +20,17 @@ def OUT(v):
     # return s8_to_i32(v & 255)
 
 async def setup(dut):
-    # configure global variables according to Verilog module parameters
-    global COMPUTE_SLICES, WEIGHTS_PER_BYTE, COMPUTE_BLOCK_WIDTH, COMPUTE_BLOCK_HEIGHT
-    COMPUTE_SLICES       = int(dut.user_project.COMPUTE_SLICES.value)
-    WEIGHTS_PER_BYTE     = 5 if PACK_5_WEIGHTS else 4
-    COMPUTE_BLOCK_WIDTH  = 1               *COMPUTE_SLICES
-    COMPUTE_BLOCK_HEIGHT = WEIGHTS_PER_BYTE*COMPUTE_SLICES
-
     dut._log.info("Start")
     clock = Clock(dut.clk, 10, units="us")
     cocotb.start_soon(clock.start())
+
+    # configure global variables according to Verilog module parameters
+    await ClockCycles(dut.clk, 1)
+    global COMPUTE_SLICES, WEIGHTS_PER_BYTE, COMPUTE_BLOCK_WIDTH, COMPUTE_BLOCK_HEIGHT
+    COMPUTE_SLICES       = int(dut.config_param_compute_slices.value)
+    WEIGHTS_PER_BYTE     = 5 if PACK_5_WEIGHTS else 4
+    COMPUTE_BLOCK_WIDTH  = 1               *COMPUTE_SLICES
+    COMPUTE_BLOCK_HEIGHT = WEIGHTS_PER_BYTE*COMPUTE_SLICES
 
 @cocotb.test()
 async def test_basics(dut):
