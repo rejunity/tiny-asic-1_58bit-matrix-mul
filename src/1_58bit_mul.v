@@ -22,7 +22,7 @@
 
 `define default_netname none
 
-`define COMPUTE_SLICES 1
+`define COMPUTE_SLICES 2
 
 module tt_um_rejunity_1_58bit (
     input  wire [7:0] ui_in,    // Dedicated inputs
