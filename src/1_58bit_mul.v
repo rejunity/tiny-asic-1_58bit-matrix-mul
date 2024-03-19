@@ -124,29 +124,40 @@ module systolic_array #(
             // arg_left_zero_next[slice_counter*5 +: 5] <= in_left_zero;
             // arg_left_sign_next[slice_counter*5 +: 5] <= in_left_sign;
             // arg_top_next[slice_counter*8 +: 8] <= in_top;
-            if (H > 5) begin
-                arg_left_zero_next <= {in_left_zero, arg_left_zero_next[H-1 : 5]};
-                arg_left_sign_next <= {in_left_sign, arg_left_sign_next[H-1 : 5]};
-            end else begin
-                arg_left_zero_next <= in_left_zero;
-                arg_left_sign_next <= in_left_sign;
+
+            arg_left_zero_next[H-1 -: 5] <= in_left_zero;
+            arg_left_sign_next[H-1 -: 5] <= in_left_sign;
+            arg_top_next[W*8-1 -: 8] <= in_top;
+
+            if (SLICES > 1) begin
+                arg_left_zero_next[H-1-5 : 0] <= arg_left_zero_next[H-1 : 5];
+                arg_left_sign_next[H-1-5 : 0] <= arg_left_sign_next[H-1 : 5];
+                arg_top_next[W*8-1-8 : 0] <= arg_top_next[W*8-1 : 8];
             end
-            if (W > 1)
-                arg_top_next <= {in_top, arg_top_next[W*8-1 : 8]};
-            else
-                arg_top_next <= in_top;
+
+            // if (H > 5) begin
+            //     arg_left_zero_next <= {in_left_zero, arg_left_zero_next[H-1 : 5]};
+            //     arg_left_sign_next <= {in_left_sign, arg_left_sign_next[H-1 : 5]};
+            // end else begin
+            //     arg_left_zero_next <= in_left_zero;
+            //     arg_left_sign_next <= in_left_sign;
+            // end
+            // if (W > 1)
+            //     arg_top_next <= {in_top, arg_top_next[W*8-1 : 8]};
+            // else
+            //     arg_top_next <= in_top;
         end
 
         if (slice_counter == 0) begin
             arg_left_zero_curr <= arg_left_zero_next;
             arg_left_sign_curr <= arg_left_sign_next;
-            if (W > 1)
+            if (SLICES > 1)
                 arg_top_curr <= {arg_top_next[7:0], arg_top_next[W*8-1: 8]};
             else
                 arg_top_curr <= arg_top_next;
         end else begin
             // arg_top_curr <= {arg_top_curr[7: 0], 8'd0};
-            if (W > 1)
+            if (SLICES > 1)
                 arg_top_curr <= {8'd0, arg_top_curr[W*8-1: 8]};
             // arg_top_curr <= {8'd0, arg_top_curr[W*8-1: 8]};
             // arg_top_curr[7:0] <= {8'd0, arg_top_curr[15: 8]};
