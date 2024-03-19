@@ -120,7 +120,7 @@ async def gemm(dut, weights, inputs, weights_per_byte = 4, compute_block_width =
             # Wait until all slices have finished accunulating
             dut.ui_in.value = 0
             dut.uio_in.value = 0
-            await ClockCycles(dut.clk, compute_slices)
+            await ClockCycles(dut.clk, compute_slices + (compute_slices-1))
 
             # Move accumulators to output queue
             dut.ena.value = 0
@@ -225,7 +225,7 @@ async def test_gemm_small(dut):
     inputs   = random_matrix(-127, 127, (K, M))
     expected = matrix_mul(weights, inputs)
 
-    await reset_run_and_validate_gemm(dut, weights, inputs, expected)
+    await reset_run_and_validate_gemm(dut, weights, inputs, expected, verbose=True)
 
 @cocotb.test()
 async def test_gemm_large(dut):

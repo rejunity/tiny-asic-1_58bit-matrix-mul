@@ -2,7 +2,7 @@
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
 # global parameters
-COMPUTE_SLICES ?= 1
+COMPUTE_SLICES ?= 2
 COMPILE_ARGS += -DCOMPUTE_SLICES=$(COMPUTE_SLICES)
 
 # defaults

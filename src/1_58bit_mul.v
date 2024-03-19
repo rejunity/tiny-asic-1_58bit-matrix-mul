@@ -4,6 +4,8 @@
  */
 
 // TODOs:
+//  + remove indexed memory access in out_queue and accumulators/accumulators_next
+//  * get rid of (slice_count - 1) wait once indexed memory access is removed
 //  * special weights 243..255 can be used to   a) initiate readout,
 //                                              b) shift accumulators by 1,
 //                                              c) set beta&gamma,
@@ -162,18 +164,27 @@ module systolic_array #(
             wire [16:0] value_curr  = accumulators     [i*W+j];
             wire [16:0] value_next  = accumulators_next[i*W+j];
             wire [16:0] value_queue = out_queue        [i*W+j];
-            wire skip = (j != slice_counter) | arg_left_zero_curr[i];
+            // wire skip = (j != slice_counter) | arg_left_zero_curr[i];
+            wire skip = arg_left_zero_curr[i];
             wire sign = arg_left_sign_curr[i];
-            wire signed [7:0] addend = $signed(arg_top_curr[j*8 +: 8]);
-            assign accumulators_next[i*W+j] =
-                 reset  ? 0 :
-                 skip   ? accumulators[i*W+j] + 0 :
-                (sign   ? accumulators[i*W+j] - addend :
-                          accumulators[i*W+j] + addend);
+            // wire signed [7:0] addend = $signed(arg_top_curr[j*8 +: 8]);
+            wire signed [7:0] addend = $signed(arg_top_curr[slice_counter*8 +: 8]);
+            if (j == 0) begin
+                assign accumulators_next[i*W+W-1] =
+                     reset  ? 0 :
+                     skip   ? accumulators[i*W+j] + 0 :
+                    (sign   ? accumulators[i*W+j] - addend :
+                              accumulators[i*W+j] + addend);
+            end else begin
+                assign accumulators_next[i*W+j-1] =
+                    reset  ? 0 :
+                              accumulators[i*W+j];
+            end
         end
     endgenerate
 
     assign out = out_queue[0] >> 8;
+    // assign out = out_queue[0][7:0];
     // assign out = out_queue[out_queue_counter] >> 8;
     // assign out = out_queue[out_queue_counter][7:0];
 endmodule
