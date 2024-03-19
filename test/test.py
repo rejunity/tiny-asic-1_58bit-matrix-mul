@@ -27,7 +27,7 @@ async def setup(dut):
     # configure global variables according to Verilog module parameters
     await ClockCycles(dut.clk, 1)
     global COMPUTE_SLICES, WEIGHTS_PER_BYTE, COMPUTE_BLOCK_WIDTH, COMPUTE_BLOCK_HEIGHT
-    COMPUTE_SLICES       = int(dut.config_param_compute_slices.value)
+    COMPUTE_SLICES       = int(dut.COMPUTE_SLICES.value)
     WEIGHTS_PER_BYTE     = 5 if PACK_5_WEIGHTS else 4
     COMPUTE_BLOCK_WIDTH  = 1               *COMPUTE_SLICES
     COMPUTE_BLOCK_HEIGHT = WEIGHTS_PER_BYTE*COMPUTE_SLICES

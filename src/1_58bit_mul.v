@@ -21,7 +21,7 @@
 `define default_netname none
 
 module tt_um_rejunity_1_58bit #(
-    parameter COMPUTE_SLICES = 1
+    parameter integer COMPUTE_SLICES = 1
 ) (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
@@ -30,11 +30,8 @@ module tt_um_rejunity_1_58bit #(
     output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
     input  wire       ena,      // will go high when the design is enabled
     input  wire       clk,      // clock
-    input  wire       rst_n,    // reset_n - low to reset
-
-    output wire [7:0] config_param_compute_slices
+    input  wire       rst_n     // reset_n - low to reset
 );
-    assign config_param_compute_slices = COMPUTE_SLICES;
     assign uio_oe  = 0;         // bidirectional IOs set to INPUT
     assign uio_out = 0;         // drive bidirectional IO outputs to 0
 
