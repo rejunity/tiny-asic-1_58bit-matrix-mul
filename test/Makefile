@@ -1,10 +1,6 @@
 # Makefile
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
-# global parameters
-COMPUTE_SLICES ?= 2
-COMPILE_ARGS += -DCOMPUTE_SLICES=$(COMPUTE_SLICES)
-
 # defaults
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog

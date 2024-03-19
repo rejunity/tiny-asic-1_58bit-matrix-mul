@@ -22,9 +22,9 @@
 
 `define default_netname none
 
-module tt_um_rejunity_1_58bit #(
-    parameter integer COMPUTE_SLICES = `COMPUTE_SLICES
-) (
+`define COMPUTE_SLICES 1
+
+module tt_um_rejunity_1_58bit (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -58,7 +58,7 @@ module tt_um_rejunity_1_58bit #(
     // @TODO: special weight to initiate readout
     wire       initiate_read_out = !ena;
     
-    systolic_array #(.SLICES(COMPUTE_SLICES)) systolic_array (
+    systolic_array systolic_array (
         .clk(clk),
         .reset(reset),
 
@@ -77,7 +77,7 @@ module tt_um_rejunity_1_58bit #(
 endmodule
 
 module systolic_array #(
-    parameter integer SLICES = 1
+    parameter integer SLICES = `COMPUTE_SLICES
 ) (
     input  wire       clk,
     input  wire       reset,
