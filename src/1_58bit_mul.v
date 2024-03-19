@@ -20,7 +20,9 @@
 
 `define default_netname none
 
-module tt_um_rejunity_1_58bit (
+module tt_um_rejunity_1_58bit #(
+    parameter COMPUTE_SLICES = 2
+) (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -54,7 +56,7 @@ module tt_um_rejunity_1_58bit (
     // @TODO: special weight to initiate readout
     wire       initiate_read_out = !ena;
     
-    systolic_array systolic_array(
+    systolic_array #(.SLICES(COMPUTE_SLICES)) systolic_array (
         .clk(clk),
         .reset(reset),
 
@@ -73,7 +75,7 @@ module tt_um_rejunity_1_58bit (
 endmodule
 
 module systolic_array #(
-    parameter COMPUTE_SLICES = 2
+    parameter SLICES = 2
 ) (
     input  wire       clk,
     input  wire       reset,
@@ -90,7 +92,6 @@ module systolic_array #(
 
     output wire [7:0] out
 );
-    localparam SLICES = COMPUTE_SLICES;
     localparam SLICE_BITS = $clog2(SLICES);
     localparam SLICES_MINUS_1 = SLICES - 1;
     localparam W = 1 * SLICES;

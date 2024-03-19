@@ -22,7 +22,7 @@ def OUT(v):
 async def setup(dut):
     # configure global variables according to Verilog module parameters
     global COMPUTE_SLICES, WEIGHTS_PER_BYTE, COMPUTE_BLOCK_WIDTH, COMPUTE_BLOCK_HEIGHT
-    COMPUTE_SLICES       = int(dut.user_project.systolic_array.COMPUTE_SLICES.value)
+    COMPUTE_SLICES       = int(dut.user_project.COMPUTE_SLICES.value)
     WEIGHTS_PER_BYTE     = 5 if PACK_5_WEIGHTS else 4
     COMPUTE_BLOCK_WIDTH  = 1               *COMPUTE_SLICES
     COMPUTE_BLOCK_HEIGHT = WEIGHTS_PER_BYTE*COMPUTE_SLICES
