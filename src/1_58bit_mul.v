@@ -6,7 +6,7 @@
 // TODOs:
 //  + remove indexed memory access in out_queue and accumulators/accumulators_next
 //  * get rid of (slice_count - 1) wait once indexed memory access is removed
-//  * remove "reset  ? 0 :" from the accumulator_next
+//  + remove "reset  ? 0 :" from the accumulator_next
 //  * special weights 243..255 can be used to   a) initiate readout,
 //                                              b) shift accumulators by 1,
 //                                              c) set beta&gamma,
@@ -96,6 +96,10 @@ module systolic_array #(
     localparam W = 1 * SLICES;
     localparam H = 5 * SLICES;
 
+    // double buffer inputs
+    // xxx_curr - arguments that are fed into MAC (multiply-accumulate) units
+    // xxx_next - where the inputs are written to
+    // once slice_counter reaches 0, xxx_next is flushed into xxx_curr
     reg [H  -1:0] arg_left_zero_curr;
     reg [H  -1:0] arg_left_sign_curr;
     reg [W*8-1:0] arg_top_curr;
@@ -120,47 +124,29 @@ module systolic_array #(
             arg_left_zero_next <= 0;
             arg_left_sign_next <= 0;
             arg_top_next <= 0;
-        end else begin
-            // arg_left_zero_next[slice_counter*5 +: 5] <= in_left_zero;
-            // arg_left_sign_next[slice_counter*5 +: 5] <= in_left_sign;
-            // arg_top_next[slice_counter*8 +: 8] <= in_top;
-
+        end else begin // write current inputs in_xxx into the xxx_next
             arg_left_zero_next[H-1 -: 5] <= in_left_zero;
             arg_left_sign_next[H-1 -: 5] <= in_left_sign;
-            arg_top_next[W*8-1 -: 8] <= in_top;
+            arg_top_next    [W*8-1 -: 8] <= in_top;
 
-            if (SLICES > 1) begin
+            if (SLICES > 1) begin // shift xxx_next for the next input
                 arg_left_zero_next[H-1-5 : 0] <= arg_left_zero_next[H-1 : 5];
                 arg_left_sign_next[H-1-5 : 0] <= arg_left_sign_next[H-1 : 5];
-                arg_top_next[W*8-1-8 : 0] <= arg_top_next[W*8-1 : 8];
+                arg_top_next    [W*8-1-8 : 0] <= arg_top_next    [W*8-1 : 8];
             end
-
-            // if (H > 5) begin
-            //     arg_left_zero_next <= {in_left_zero, arg_left_zero_next[H-1 : 5]};
-            //     arg_left_sign_next <= {in_left_sign, arg_left_sign_next[H-1 : 5]};
-            // end else begin
-            //     arg_left_zero_next <= in_left_zero;
-            //     arg_left_sign_next <= in_left_sign;
-            // end
-            // if (W > 1)
-            //     arg_top_next <= {in_top, arg_top_next[W*8-1 : 8]};
-            // else
-            //     arg_top_next <= in_top;
         end
 
-        if (slice_counter == 0) begin
+        if (slice_counter == 0) begin // xxx_next is flushed into xxx_curr,
+                                      // once slice_counter reaches 0
             arg_left_zero_curr <= arg_left_zero_next;
             arg_left_sign_curr <= arg_left_sign_next;
             if (SLICES > 1)
                 arg_top_curr <= {arg_top_next[7:0], arg_top_next[W*8-1: 8]};
             else
                 arg_top_curr <= arg_top_next;
-        end else begin
-            // arg_top_curr <= {arg_top_curr[7: 0], 8'd0};
+        end else begin // shift top systolic array arguments every clock cycle
             if (SLICES > 1)
                 arg_top_curr <= {8'd0, arg_top_curr[W*8-1: 8]};
-            // arg_top_curr <= {8'd0, arg_top_curr[W*8-1: 8]};
-            // arg_top_curr[7:0] <= {8'd0, arg_top_curr[15: 8]};
         end
         
         // The following loop must be unrolled, otherwise Verilator
@@ -189,34 +175,28 @@ module systolic_array #(
     generate
     for (j = 0; j < W; j = j + 1)
         for (i = 0; i < H; i = i + 1) begin : mac
-            wire [16:0] value_curr  = accumulators     [i*W+j];
-            wire [16:0] value_next  = accumulators_next[i*W+j];
-            wire [16:0] value_queue = out_queue        [i*W+j];
-            // wire skip = (j != slice_counter) | arg_left_zero_curr[i];
             wire zero = arg_left_zero_curr[i];
             wire sign = arg_left_sign_curr[i];
-            // wire signed [7:0] addend = $signed(arg_top_curr[j*8 +: 8]);
-            // wire signed [7:0] addend = $signed(arg_top_curr[slice_counter*8 +: 8]);
-            // wire signed [7:0] addend = $signed(arg_top_curr[8 +: 8]);
             wire signed [7:0] addend = $signed(arg_top_curr[7:0]);
             if (j == 0) begin : compute
                 assign accumulators_next[i*W+W-1] =
-                     reset  ? 0 :
                      zero   ? accumulators[i*W+j] + 0 :
                     (sign   ? accumulators[i*W+j] - addend :
                               accumulators[i*W+j] + addend);
             end else begin : shift
                 assign accumulators_next[i*W+j-1] =
-                    reset  ? 0 :
                               accumulators[i*W+j];
             end
+
+            // for debugging purposes in wave viewer
+            wire [16:0] value_curr  = accumulators     [i*W+j];
+            wire [16:0] value_next  = accumulators_next[i*W+j];
+            wire [16:0] value_queue = out_queue        [i*W+j];
         end
     endgenerate
 
     assign out = out_queue[0] >> 8;
     // assign out = out_queue[0][7:0];
-    // assign out = out_queue[out_queue_counter] >> 8;
-    // assign out = out_queue[out_queue_counter][7:0];
 endmodule
 
 module unpack_ternary_weights(input      [7:0] packed_weights,
