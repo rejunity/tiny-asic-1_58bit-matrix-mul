@@ -20,10 +20,6 @@
 //  * parametrizalbe systolic_array
 //  * 4-bit input support
 
-`define default_netname none
-
-`define COMPUTE_SLICES 2
-
 module tt_um_rejunity_1_58bit (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs

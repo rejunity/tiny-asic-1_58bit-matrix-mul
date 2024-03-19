@@ -14,7 +14,8 @@ project:
   top_module:  "tt_um_rejunity_1_58bit"
   
   # List your project's source files here. Source files must be in ./src and you must list each source file separately, one per line:
-  source_files:        
+  source_files:
+    - "config.v"
     - "1_58bit_mul.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
