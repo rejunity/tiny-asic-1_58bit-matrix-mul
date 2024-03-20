@@ -2,42 +2,49 @@
 
 # Tiny matrix multiplication ASIC for the "1.58 bit" LLMs with Ternary weights
 
-Inspired by 
+Preliminery **performance** results based on simulations:
+* eFabless 130nm ASIC - **1 GigaOPS** per 0.2 square millimeter of chip area @ 50 MHz
+* $99 FPGA - **0.6 TeraOPS** @ 500 MHz (simulated by [@samsoniuk](https://github.com/samsoniuk))
+
+Observation: _**doubling** the chip area leads to **50%** increase in performance given a constant memory bandwidth and clock frequency._
+
+## Inspiration
+This work is inspired by [The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits](https://arxiv.org/pdf/2402.17764.pdf) paper that reduces weights of the [Large Language Model](https://en.wikipedia.org/wiki/Large_language_model) to ternary representation `{-1, 0, 1}`.
+
+## Intent
+This implementation is an exploration of the design space - intent is to measure how chip area, precsion and memory bandwidth affects the performance of the systolic array and AI accelerators.
+
+This ASIC will be fabricated using eFabless 130 nm process via [Tiny Tapeout](https://tinytapeout.com).
+
+## Considerations
+This implementation takes the following considerations into account:
+* Extremely limited chip area ~ 0.1 .. 0.3 square millimeters.
+* Extremely low memory bandwidth limited by the 16 IO pins available in Tiny Tapeout ~ 100 MB/s.
+* Be able to increase compute regardless of memory bandwidth.
+
+## Implementation
+**Ternary weights.** Currently a pretty basic approach is used to decode ternary values from 8-bit stream. 8-bit values are decoded with a huge case statement. Surprisingly it produces a pretty compact logic. But I am sure it in can be done better!
+```
+    always @(*) begin
+      case(packed_weights)
+        8'd000: begin weights_zero = 5'b11111; weights_sign = 5'b00000; end //   0  0  0  0  0
+        8'd001: begin weights_zero = 5'b01111; weights_sign = 5'b00000; end //   0  0  0  0  1
+        8'd002: begin weights_zero = 5'b01111; weights_sign = 5'b10000; end //   0  0  0  0 -1
+        // ...
+```
+
+**Systolic array.** The matrix multiplication is implemented as an activation stationary "pseudo" systolic array. It is "pseudo" because inputs (weights & activations) are directly connected to all elements in the array. Only results (new activations) are shifted out of the array in a systolic manner. Such implementation is closer to Tesla FSD rather than a Google's TPU.
+
+**Compute slices.** Systolic array is split into compute slices. Slicing allows to increase the size of systolic array and compute power even if memory bandwidth stays the same.
 
 - [Read the documentation for project](docs/info.md)
+
 
 ## What is Tiny Tapeout?
 
 TinyTapeout is an educational project that aims to make it easier and cheaper than ever to get your digital designs manufactured on a real chip.
 
 To learn more and get started, visit https://tinytapeout.com.
-
-## Verilog Projects
-
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Optionally, add a testbench to the `test` folder. See [test/README.md](test/README.md) for more information.
-
-The GitHub action will automatically build the ASIC files using [OpenLane](https://www.zerotoasiccourse.com/terminology/openlane/).
-
-## Enable GitHub actions to build the results page
-
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
-
-## Resources
-
 - [FAQ](https://tinytapeout.com/faq/)
 - [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
 - [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://docs.google.com/document/d/1aUUZ1jthRpg4QURIIyzlOaPWlmQzr-jBn3wZipVUPt4)
-
-## What next?
-
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@matthewvenn](https://twitter.com/matthewvenn)
