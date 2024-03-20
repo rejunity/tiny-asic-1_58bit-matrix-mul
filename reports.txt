@@ -2,6 +2,33 @@
 -------------------------------------------------------------------------
 5 weigths per byte
 
+* 6 slices after commit  5ec81fa 
+    Compensated accumulators_next 'being ahead' when copying into out_que
+
+    Utilisation (%)	Wire length (um)
+    64.41	501023
+
+    Category	Cells	Count
+    Fill	fill decap	15135
+    Buffer	buf clkbuf	5521
+    Flip Flops	dfxtp	4539
+    Tap	tapvpwrvgnd	4399
+    Misc	dlygate4sd3 conb	3372
+    AND	and2 and3 and4 a21boi	3134
+    Combo Logic	o21ai or2b and2b a211o o211a a21o a21bo a21oi o21a o31a a31oi o2bb2a and4b a311oi a22o o22ai o221a nor3b o41a a31o a311o o22a o31ai a2bb2o a32o a22oi o21ba o32a o21bai or3b and3b a221o a2111o o2111ai	1756
+    Multiplexer	mux2	1653
+    OR	or3 or4 or2 xor2	556
+    NOR	xnor2 nor4 nor2 nor3	540
+    NAND	nand2 nand3	388
+    Diode	diode	254
+    Inverter	inv	119
+    Clock	clkinv	3
+
+    21835 total cells (excluding fill and tap cells)
+
+-------------------------------------------------------------------------
+5 weigths per byte
+
 * 2 slices after commit 76f5fcc40076ab6af216f53a7708ec0e96a20cba
     Shift registers for input and systolic array args
     (-70 logic, -0.26% utilisation, -1961 wire)
