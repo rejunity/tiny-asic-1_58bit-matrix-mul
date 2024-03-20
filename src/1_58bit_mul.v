@@ -4,15 +4,13 @@
  */
 
 // TODOs:
-//  + remove indexed memory access in out_queue and accumulators/accumulators_next
-//  * get rid of (slice_count - 1) wait once indexed memory access is removed
-//  + remove "reset  ? 0 :" from the accumulator_next
+//  * test overlap between computations and readouts
+//  * free ena from initiating readouts
 //  * special weights 243..255 can be used to   a) initiate readout,
 //                                              b) shift accumulators by 1,
 //                                              c) set beta&gamma,
 //                                              d) choose signed/unsigned inputs,
 //                                              e) handle overflow or ReLU
-//  * test overlap between computations and readouts
 //  * separate signal to shift accumulators by 1
 //  * multiply by gamma and add beta
 //  * handle both signed & unsigned inputs
@@ -20,6 +18,10 @@
 //  * ReLU
 //  * parametrizalbe systolic_array
 //  * 4-bit input support
+// DONE:
+//  + remove indexed memory access in out_queue and accumulators/accumulators_next
+//  + get rid of (slice_count - 1) wait once indexed memory access is removed
+//  + remove "reset  ? 0 :" from the accumulator_next
 
 module tt_um_rejunity_1_58bit (
     input  wire [7:0] ui_in,    // Dedicated inputs
@@ -96,7 +98,7 @@ module systolic_array #(
     localparam W = 1 * SLICES;
     localparam H = 5 * SLICES;
 
-    // double buffer inputs
+    // Double buffer inputs
     // xxx_curr - arguments that are fed into MAC (multiply-accumulate) units
     // xxx_next - where the inputs are written to
     // once slice_counter reaches 0, xxx_next is flushed into xxx_curr
@@ -163,9 +165,20 @@ module systolic_array #(
             else
                 accumulators[n] <= accumulators_next[n];
 
-            if (copy_accumulator_values_to_out_queue)
-                out_queue[n]    <= accumulators_next[n];
-            else if (n > 0)
+            if (copy_accumulator_values_to_out_queue) begin
+                // To compensate accumulators_next 'being ahead' (shifted by 1 after computation):
+                // (e.g. SLICES=4)
+                // o[0] <= acc_n[3], o[1] <= acc_n[0], o[2] <= acc_n[1], o[3] <= acc_n[2]
+                // o[4] <= acc_n[7], o[5] <= acc_n[4], o[6] <= acc_n[5], o[7] <= acc_n[6]
+                if (n%W == 0)
+                    out_queue[n] <= accumulators_next[n+W-1];
+                else
+                    out_queue[n] <= accumulators_next[n-1];
+
+                // Alternatively the following code can be used
+                // if additional (slice_counter-1) wait cycles are introduced
+                // out_queue[n] <= accumulators_next[n];
+            end else if (n > 0)
                 out_queue[n-1]  <= out_queue[n];
         end
         /* verilator lint_on BLKLOOPINIT */
