@@ -1,6 +1,8 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# Tiny matrix multiplication ASIC for the "1.58 bit" LLMs with Ternary weights
+
+Inspired by 
 
 - [Read the documentation for project](docs/info.md)
 
