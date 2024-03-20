@@ -4,7 +4,7 @@
 
 Preliminery **performance** results based on simulations:
 * eFabless 130nm ASIC - **1 GigaOPS** per 0.2 square millimeter of chip area @ 50 MHz
-* $99 FPGA - **0.6 TeraOPS** @ 500 MHz (simulated by [@samsoniuk](https://github.com/samsoniuk))
+* $99 FPGA - **0.6 TeraOPS** @ 500 MHz (thanks to [@samsoniuk](https://github.com/samsoniuk) for simulation)
 
 Observation: _**doubling** the chip area leads to **50%** increase in performance given a constant memory bandwidth and clock frequency._
 
