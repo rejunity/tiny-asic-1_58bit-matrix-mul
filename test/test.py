@@ -50,7 +50,7 @@ async def test_basics(dut):
     dut.ui_in.value = (1*3**4 + 2*3**3 + 1*3**2 + 0*3**1 + 2*3**0) if PACK_5_WEIGHTS else 0b01_11_01_00
     dut.uio_in.value = 127
     
-    K = 12
+    K = 12 if COMPUTE_SLICES < 5 else COMPUTE_SLICES * 3 # K must be divisble by COMPUTE_SLICES
     await ClockCycles(dut.clk, K + COMPUTE_SLICES)
     dut.ena.value = 0
     dut.ui_in.value = 0
@@ -117,10 +117,10 @@ async def gemm(dut, weights, inputs, weights_per_byte = 4, compute_block_width =
                 dut.ui_in.value  = w
                 await ClockCycles(dut.clk, 1)
 
-            # Wait until all slices have finished accunulating
+            # Wait until all slices have finished accumulating
             dut.ui_in.value = 0
             dut.uio_in.value = 0
-            await ClockCycles(dut.clk, compute_slices + (compute_slices-1))
+            await ClockCycles(dut.clk, compute_slices)
 
             # Move accumulators to output queue
             dut.ena.value = 0
