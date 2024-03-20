@@ -1,0 +1,411 @@
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+5 weigths per byte
+
+* 2 slices after commit 76f5fcc40076ab6af216f53a7708ec0e96a20cba
+    Shift registers for input and systolic array args
+    (-70 logic, -0.26% utilisation, -1961 wire)
+
+    Utilisation (%)	Wire length (um)
+    10.51	76895
+    
+    Fill	decap fill	24723
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	a21o or2b o211a a21oi o21ai and2b a21bo o31ai o21a o22a o41a a31o o221a a22o o31a a31oi o21ba a211o and4bb a211oi o2bb2a nand4b o311a a221oi and3b a41o a32o nor3b o32a a221o a311o a2bb2o or3b o21bai a2111o and4b	778
+    Buffer	clkbuf buf	615
+    Flip Flops	dfxtp	553
+    AND	and3 and2 and4 a21boi	370
+    Misc	dlygate4sd3 dlymetal6s2s conb	335
+    OR	or2 xor2 or3 or4	211
+    NAND	nand3 nand2	180
+    NOR	xnor2 nor2 nor3 nor4	177
+    Multiplexer	mux2	136
+    Inverter	inv	62
+    Diode	diode	16
+
+    3433 total cells (excluding fill and tap cells)
+
+* 3 slices after commit 76f5fcc40076ab6af216f53a7708ec0e96a20cba
+    (-0.26% utilisation, +(!)25 logic)
+
+    Utilisation (%)	Wire length (um)
+    19.52	152127
+
+    Fill	decap fill	23363
+    Tap	tapvpwrvgnd	4399
+    Buffer	buf clkbuf	1251
+    Combo Logic	o31a o21ai or2b and2b a211o o211a a21o a21bo a21oi o21a o21ba a31o o221a o2bb2a nand4b o41a o311a a22o and4bb a211oi o22a a41o a22oi o21bai o31ai nor2b and3b a32o a2bb2o or3b a311o and4b a31oi a221o	1211
+    Flip Flops	dfxtp	1190
+    Misc	dlymetal6s2s dlygate4sd3 conb	837
+    AND	and2 and3 and4 a21boi	794
+    OR	or4 or2 or3 xor2	330
+    NAND	nand2 nand3	303
+    NOR	xnor2 nor2 nor4 nor3	240
+    Multiplexer	mux2	193
+    Inverter	inv	86
+    Diode	diode	39
+
+    6474 total cells (excluding fill and tap cells)
+
+* 4 slices after commit 76f5fcc40076ab6af216f53a7708ec0e96a20cba
+
+    metric.csv
+        (Cell/mm^2)/Core_Util	DIEAREA_mm^2	CellPer_mm^2	OpenDP_Util	Final_Util	Peak_Memory_Usage_MB	synth_cell_count
+        67257.32400439259	0.31113340159999997	33628.662002196295	31.83	84.38170000000001	899.82	8949
+
+        CoreArea_um^2
+        302420.04480000003
+
+        suggested_clock_period	suggested_clock_frequency	CLOCK_PERIOD
+        21.0	47.61904761904762	20
+
+    Utilisation (%)	Wire length (um)
+    31.82	232234
+
+    Fill	decap fill	21530
+    Tap	tapvpwrvgnd	4399
+    Buffer	buf clkbuf	2454
+    Flip Flops	dfxtp	2066
+    Misc	dlygate4sd3 dlymetal6s2s conb	1492
+    AND	and2 and3 a21boi and4	1365
+    Combo Logic	o21ai or2b and2b a211o o211a a21o o21a o31a a21oi a31o a22o o22a a21bo a31oi a311o and4bb a311oi o221a o31ai a211oi a32o o21bai or3b o311a a41o a41oi o21ba or4bb a22oi o32a o2bb2a a2bb2o a221o o22ai and3b	1114
+    Multiplexer	mux2 mux4	801
+    NOR	xnor2 nor4 nor2 nor3	529
+    NAND	nand2 nand4 nand2b nand3	308
+    OR	or3 or4 or2 xor2	294
+    Inverter	inv	89
+    Diode	diode	61
+    Clock	clkinv	2
+
+    10575 total cells (excluding fill and tap cells)
+
+* 5 slices after commit 76f5fcc40076ab6af216f53a7708ec0e96a20cba
+    Utilisation (%)	Wire length (um)
+    46.8	340552
+
+    Fill	decap fill	18968
+    Tap	tapvpwrvgnd	4399
+    Buffer	buf clkbuf	3810
+    Flip Flops	dfxtp	3183
+    Misc	dlymetal6s2s dlygate4sd3 conb	2441
+    AND	and2 and3 and4 a21boi	2059
+    Combo Logic	a21oi a21o or2b and2b a211o o211a o21ai a21bo o21a a31o o31a o21ba a211oi a22o o22a o31ai a31oi or3b o21bai a311o o2111ai and4b o311a o2111a a41o o211ai o221a a311oi a2bb2o a32o o32a a22oi o221ai a221o o22ai	1413
+    Multiplexer	mux2	1184
+    NOR	nor4 xnor2 nor2 nor3	717
+    NAND	nand2 nand3 nand4	431
+    OR	or3 or4 or2 xor2	340
+    Inverter	inv	115
+    Diode	diode	113
+    Clock	clkinv	2
+
+    15808 total cells (excluding fill and tap cells)
+
+-------------------------------------------------------------------------
+5 weigths per byte
+
+* 1 slice after commit c49f80c9dbd26d5bc7961109183817462968a261
+    Split config files in Makefile into CONFIG_SOURCES to be included wit…
+    (-0.04 % utilisation and ~3000 shorter wire)
+
+    Utilisation (%)	Wire length (um)
+    4.21	27350
+
+    Fill	decap fill	25519
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	or3b o31a o21ai o21a a211o nor3b o211a a21o a31o or4b a21oi o221a o2bb2a o211ai and2b o311a or4bb a21bo or2b a221o o2111a a211oi o22a o41a a41o and3b a22o a32o a2bb2o a22oi	401
+    Buffer	clkbuf buf	193
+    Flip Flops	dfxtp	158
+    OR	or4 or2 xor2 or3	142
+    NOR	nor2 xnor2 nor3	120
+    Misc	dlygate4sd3 dlymetal6s2s conb	106
+    NAND	nand4 nand2 nand2b nand3	86
+    AND	and2 and3 and4	83
+    Multiplexer	mux2	82
+    Inverter	inv	19
+    Diode	diode	1
+
+    1391 total cells (excluding fill and tap cells)
+
+* 2 slices after commit c49f80c9dbd26d5bc7961109183817462968a261
+
+    Utilisation (%)	Wire length (um)
+    10.77	78856
+
+    Fill	decap fill	24722
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	a21oi o31ai a21o o21ai a211o o211a a21bo o21a o31a a31o o221a and2b a22o or2b a311o o311a a32o o41ai o22a a221o o211ai or3b o2111a o21ba a211oi and3b o32a o2bb2a	786
+    Buffer	buf clkbuf	614
+    Flip Flops	dfxtp	553
+    AND	and2 and3 a21boi	354
+    Misc	dlygate4sd3 dlymetal6s2s conb	349
+    OR	or4 or2 or3 xor2	245
+    NOR	xnor2 nor2 nor3 nor4	208
+    NAND	nand2 nand3	188
+    Multiplexer	mux2 mux4	160
+    Inverter	inv	32
+    Diode	diode	14
+
+    3503 total cells (excluding fill and tap cells)
+
+* 3 slices after commit c49f80c9dbd26d5bc7961109183817462968a261
+    (-11.25% utilisation, -3461 logic)
+
+    Utilisation (%)	Wire length (um)
+    19.75	145328
+
+    Fill	decap fill	23386
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	and2b a22o nor2b and3b a221oi nor3b a21o a31o a221o a211o o211a o21bai o21a o31a o21ai a2bb2o a21oi or2b a311oi o221a o22a o41a o2bb2a o21ba o31ai o311a o211ai a21bo a311o a32o a22oi or3b o32a o22ai	1265
+    Buffer	clkbuf buf	1198
+    Flip Flops	dfxtp	1190
+    Misc	dlygate4sd3 conb	812
+    AND	a21boi and4 and2 and3	718
+    OR	or2 xor2 or3 or4	363
+    NOR	nor2 nor3 xnor2 nor4	351
+    NAND	nand3 nand2 nand4 nand2b	236
+    Multiplexer	mux2	204
+    Inverter	inv	74
+    Diode	diode
+
+    6449 total cells (excluding fill and tap cells)
+
+* 4 slices after commit c49f80c9dbd26d5bc7961109183817462968a261
+    FAILS KLayout FEOL precheck
+
+    Utilisation (%)	Wire length (um)
+    31.62	263645
+
+    Fill	fill decap	21327
+    Tap	tapvpwrvgnd	4399
+    Buffer	clkbuf buf	2071
+    Flip Flops	dfxtp	2066
+    Combo Logic	and2b a22o o21ai a31o a211o o211a a21o a21bo a211oi o21bai nor3b and3b o21a o41a nand3b o31a o2111a a311o a21oi o311a a32o o221a or2b o31ai o21ba or3b o211ai a2bb2o o2bb2a a221oi o22a a221o o221ai	1821
+    Misc	dlygate4sd3 dlymetal6s2s conb	1574
+    AND	and2 a21boi and3	1415
+    OR	or3 or2 or4 xor2	585
+    NAND	nand2 nand2b	344
+    NOR	xnor2 nor2 nor4 nor3	306
+    Multiplexer	mux4 mux2	254
+    Inverter	inv	99
+    Diode	diode	82
+    Clock	clkdlybuf4s25
+
+    10619 total cells (excluding fill and tap cells)
+
+-------------------------------------------------------------------------
+5 weigths per byte
+
+* 1 slice after commit d6550de
+    Shift out the output queue instead of addressing
+    (-38 logic, -3 DFFs)
+
+
+    Utilisation (%)	Wire length (um)
+    4.25	30776
+
+    Fill	decap fill	25552
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	and2b o21a or2b o21ai a31o a211o o211a a21o a21bo o31a a21oi o21bai a221o o2111a o22a o41a o221a o211ai a31oi a22o a311o a32o or3b o31ai a41o a2bb2o o2bb2a o21ba a211oi o311a a2111o and3b o32a o22ai or4b	405
+    Buffer	buf clkbuf	194
+    Flip Flops	dfxtp	158
+    NOR	nor2 xnor2 nor3 nor4	125
+    OR	or2 or4 xor2 or3	109
+    Misc	dlygate4sd3 dlymetal6s2s conb	104
+    AND	and2 and3 and4 a21boi	101
+    NAND	nand2 nand3 nand2b	80
+    Multiplexer	mux2 mux4	77
+    Inverter	inv	29
+    Diode	diode	4
+
+    1386 total cells (excluding fill and tap cells)
+
+
+* 3 slice after commit d6550de 
+    (-272 logic, -6 DFFs)
+
+    Utilisation (%)	Wire length (um)
+    31.0	298102
+
+    Fill	decap fill	22980
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	o31ai a21o o21a o31a a21oi and2b a211oi o211a o21ba o21ai a31o a311o a22o o2bb2a o211ai o221a a21bo or2b a41o and3b nor3b a221o o2111a o21bai o22a o41a a2111o a31oi a211o a22oi or3b o41ai o311a a221oi a311oi a2bb2o o311ai o2111ai or4b nor2b o32a a32o	2745
+    Buffer	buf clkbuf	1356
+    Flip Flops	dfxtp	1190
+    OR	or2 or4 xor2 or3	1027
+    NOR	nor2 xnor2 nor3 nor4	816
+    AND	and2 and3 a21boi and4	764
+    NAND	nand2 nand3 nand2b	749
+    Multiplexer	mux2	513
+    Misc	dlygate4sd3 dlymetal6s2s conb	452
+    Diode	diode	184
+    Inverter	inv	110
+    Clock	clkinv clkdlybuf4s25	4
+
+    9910 total cells (excluding fill and tap cells)
+
+-------------------------------------------------------------------------
+4 weigths per byte
+    25 (24?) bit per MAC        (17+8)
+    16 bit in buffer per slice (4*2+8)
+    16 bit args per slice      (4*2+8)
+
+    slice 0 ~ 0  = 24*4+32+8                        | (1082 - 132) / 4    ~ 237
+    slice 2 ~ 21 ? = 24*4*4+32*2+5                  | (3642 - 453) / 8    ~ 399
+    slice 3      = 24*4*9+32*3+8                    | (8120 - 968) / 12   ~ 596
+
+5 weigths per byte
+    25 (24?) bit per MAC        (17+8)
+    18 bit in buffer per slice (5*2+8)
+    18 bit args per slice      (5*2+8)
+
+    slice 0 ~ 0 = 24*5+36+5                         | (1424 - 161) / 5    ~ 252
+    slice 2 ~ 22 ? = 24*5*4+36*2+6                  | (4664 - 558) / 10   ~ 410
+    slice 3     = 24*5*9+36*3+8                     | (10182 - 1196) / 15 ~ 600
+                                                    |                                 +80 (unpack)
+
+    ~200 logic cells per MAC
+-------------------------------------------------------------------------
+5 weigths per byte
+
+
+* 1 slice
+    Utilisation (%)	Wire length (um)
+    4.34	31971
+
+    Fill	decap fill	25582
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	nor3b a22o a221o a21o a21oi a31o o211a and2b a211o o21a o31a o21bai or2b o21ai or4b o32a o221a o22a o41a a41o a21bo and4bb o311a a311o a211oi o21ba a311oi or3b o211ai o2111a a2bb2o o221ai and4b and3b a32o o2bb2a a2111o o31ai a31oi a22oi	406
+    Buffer	clkbuf buf	200
+    Flip Flops	dfxtp	161
+    OR	or2 xor2 or4 or3	140
+    NOR	nor2 xnor2 nor3 nor4	123
+    Misc	dlygate4sd3 dlymetal6s2s conb	105
+    AND	and2 and3 a21boi and4	103
+    Multiplexer	mux2 mux4	89
+    NAND	nand2 nand3	69
+    Inverter	inv	25
+    Diode	diode	3
+
+    1424 total cells (excluding fill and tap cells)
+
+* 2 slices
+    Utilisation (%)	Wire length (um)
+    15.04	136556
+
+    Fill	decap fill	24759
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	or3b and4b a22o a221o a2111o and3b o22a a211o o32a and2b a2bb2o or2b a21bo o21a o21ai a21o a311o a31o o221a o211a a21oi o311a o31a o2bb2a a32o o221ai o211ai o2111a o31ai o21ba o21bai a221oi o41a a41o or4bb nand4b o2111ai o22ai nor3b a311oi a31oi	1349
+    Buffer	clkbuf buf	680
+    Flip Flops	dfxtp	558
+    OR	or2 or3 or4 xor2	492
+    NOR	nor2 nor3 xnor2 nor4	409
+    AND	and3 and2 a21boi	376
+    NAND	nand2b nand2 nand3	340
+    Multiplexer	mux2	238
+    Misc	dlygate4sd3 dlymetal6s2s conb	117
+    Inverter	inv	67
+    Diode	diode	35
+    Clock	clkinv clkdlybuf4s25	3
+
+    4664 total cells (excluding fill and tap cells)
+
+
+* 3 slices
+    Utilisation (%)	Wire length (um)
+    32.0	420018
+
+    Fill	decap fill	23214
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	or2b nor2b nand3b a22o a221o or4b and2b and3b and4b a21oi o31a a211o a31o o211a o21ai a21o o21a o21ba a31oi o221a o22a o41a a41o a32o o311a a21bo a311oi o211ai o31ai o32a a311o nor4b or4bb or3b o2bb2a a211oi a2bb2o a2111o o21bai o221ai nor3b a221oi o2bb2ai o2111ai o311ai o2111a o22ai and4bb	2924
+    Buffer	buf clkbuf	1383
+    Flip Flops	dfxtp	1196
+    NOR	nor2 nor4 xnor2 nor3	937
+    OR	or2 or4 or3 xor2	879
+    NAND	nand2 nand2b nand3	850
+    AND	and2 and3 and4 a21boi	779
+    Multiplexer	mux2	524
+    Misc	dlygate4sd3 dlymetal6s2s conb	317
+    Diode	diode	267
+    Inverter	inv	118
+    Clock	clkinv	8
+
+    10182 total cells (excluding fill and tap cells)
+
+
+654 out of 1148
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+4 weigths per byte
+
+* 1 slice
+    (Cell/mm^2)/Core_Util	DIEAREA_mm^2	CellPer_mm^2	OpenDP_Util	Final_Util	Peak_Memory_Usage_MB	synth_cell_count
+    6916.647293197595	0.31113340159999997	3458.3236465987975	3.24	86.8327	597.83	954
+
+    Utilisation (%)	Wire length (um)
+    3.24	23125
+
+    Fill	decap fill	25697
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	a221o o21ba o21a o41a o21ai a21o and2b a211o o211ai a21bo a21oi o211a o31a or2b a32o o311a a31o o221a o2bb2a o2111ai o311ai a311o a22o a2bb2o nand3b a22oi a211oi a2111oi o22a a41o o21bai and3b or4b	269
+    Buffer	buf clkbuf	172
+    Flip Flops	dfxtp	132
+    Misc	dlygate4sd3 conb	98
+    OR	or2 or4 or3 xor2	92
+    AND	and3 and2 and4	84
+    NOR	nor2 nor4 xnor2 nor3	78
+    Multiplexer	mux2	65
+    NAND	nand2 nand3 nand4	63
+    Inverter	inv	23
+    Diode	diode	6
+
+    1082 total cells (excluding fill and tap cells)
+
+* 2 slices
+
+    Utilisation (%)	Wire length (um)
+    11.77	106377
+
+    Fill	decap fill	25073
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	a22o a211o a221o o32a a2111o o22a a21o o21ai o311a o211a and2b o21a or2b a21oi o21bai o31a o31ai a31o o221a or3b and4b a311o and3b o41a a21bo o21ba a41o o2bb2a o311ai or4bb a22oi a31oi nor3b or4b o211ai a211oi	1045
+    Buffer	clkbuf buf	525
+    Flip Flops	dfxtp	453
+    OR	or2 or4 xor2 or3	329
+    NOR	nor2 xnor2 nor3 nor4	319
+    NAND	nand2b nand2 nand3	293
+    AND	and2 and3 a21boi and4	281
+    Multiplexer	mux2	189
+    Misc	dlygate4sd3 dlymetal6s2s conb	115
+    Inverter	inv	46
+    Diode	diode	44
+    Clock	clkinv	3
+
+    3642 total cells (excluding fill and tap cells)
+
+* 3 slices
+    metric.csv
+        (Cell/mm^2)/Core_Util	DIEAREA_mm^2	CellPer_mm^2	OpenDP_Util	Final_Util	Peak_Memory_Usage_MB	synth_cell_count
+        51283.46849919183	0.31113340159999997	25641.734249595916	25.57	81.6946	862.91	7623
+
+        suggested_clock_period	suggested_clock_frequency	CLOCK_PERIOD
+        21.0	47.61904761904762	20
+
+    Utilisation (%)	Wire length (um)
+    25.57	283294
+
+    Fill	decap fill	23889
+    Tap	tapvpwrvgnd	4399
+    Combo Logic	nor2b o22ai and4b and3b a2111oi a22o a221o a2111o a21o a211o or2b a21oi a31o o211a and2b o21ai o311a o31a a31oi or4bb a221oi o21a o22a a21bo a311o o221a o41a a41o o21ba or4b o32a or3b and4bb o21bai o211ai o2111ai o2bb2a a2bb2o o31ai a32o nand3b a211oi nor3b o2111a o221ai nor4b a32oi	2303
+    Buffer	buf clkbuf	1134
+    Flip Flops	dfxtp	968
+    NOR	nor2 xnor2 nor4 nor3	726
+    OR	or4 or2 or3 xor2	707
+    NAND	nand2 nand3 nand2b nand4	680
+    AND	and2 and3 and4 a21boi	656
+    Multiplexer	mux2	420
+    Misc	dlymetal6s2s dlygate4sd3 conb	276
+    Diode	diode	142
+    Inverter	inv	105
+    Clock	clkinv	3
+
+    8120 total cells (excluding fill and tap cells)
