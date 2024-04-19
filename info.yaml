@@ -1,9 +1,9 @@
 # Tiny Tapeout project information
 project:
-  title:        "1.58bit accelerator"      # Project title
+  title:        "Ternary 1.58-bit x 8-bit matrix multiplier"      # Project title
   author:       "ReJ aka Renaldas Zioma"
   discord:      "rzioma"
-  description:  "1.58bit x 8bit matrix multiplier block"
+  description:  "Matrix multiplication block for 1.58 bit aka TERNARY weight LLMs"
   language:     "Verilog"
   clock_hz:     48000000       # Clock frequency in Hz (or 0 if not applicable)
 
